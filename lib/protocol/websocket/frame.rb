@@ -48,6 +48,8 @@ module Protocol
 				if frame.read(stream)
 					return frame
 				end
+			rescue EOFError
+				return nil
 			end
 			
 			def <=> other
@@ -56,6 +58,14 @@ module Protocol
 			
 			def to_ary
 				[@fin, @opcode, @mask, @length, @payload]
+			end
+			
+			def control?
+				@opcode & 0x8
+			end
+			
+			def continued?
+				@fin == false
 			end
 			
 			# The generic frame header uses the following binary representation:

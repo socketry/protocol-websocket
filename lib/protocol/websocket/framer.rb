@@ -36,13 +36,14 @@ module Protocol
 			end
 			
 			def read_frame
-				frame = Frame.new
+				Frame.read(@stream)
+			end
+			
+			def read_message
 				
-				frame.read(@stream)
-				
-				return frame
-			rescue EOFError
-				return nil
+			end
+			
+			def write_message(opcode, payload)
 			end
 			
 			def write_frame(frame)
