@@ -102,11 +102,11 @@ module Protocol
 				buffer = stream.read(2) or raise EOFError
 				first, second = buffer.unpack("CC")
 				
-				@fin = !!(first & 0b1000_0000)
+				@fin = (first & 0b1000_0000 != 0)
 				# rsv = byte & 0b0111_0000
 				@opcode = first & 0b0000_1111
 				
-				@mask = !!(second & 0b1000_0000)
+				@mask = (second & 0b1000_0000 != 0)
 				@length = second & 0b0111_1111
 				
 				if @length == 126
@@ -121,8 +121,15 @@ module Protocol
 					@mask = stream.read(4) or raise EOFError
 					@payload = read_mask(@mask, @length, stream)
 				else
+					@mask = nil
 					@payload = stream.read(@length) or raise EOFError
 				end
+				
+				if @payload&.bytesize != @length
+					raise ProtocolError, "Invalid payload size: #{@length} != #{@payload.bytesize}!"
+				end
+				
+				return true
 			end
 			
 			def write(stream)
@@ -145,8 +152,8 @@ module Protocol
 				end
 				
 				buffer << [
-					(@fin ? 0xb1000_0000 : 0) | @opcode,
-					(@mask ? 0xb1000_0000 : 0) | short_length,
+					(@fin ? 0b1000_0000 : 0) | @opcode,
+					(@mask ? 0b1000_0000 : 0) | short_length,
 				].pack('CC')
 				
 				if short_length == 126

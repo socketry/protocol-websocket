@@ -21,9 +21,17 @@
 require_relative 'frame_examples'
 
 RSpec.describe Protocol::WebSocket::Frame do
-	context "TEXT frames" do
+	context "TEXT frames (with mask)" do
 		subject do
 			described_class.new(true, Protocol::WebSocket::Frame::TEXT, "abcd", "Hello World")
+		end
+		
+		it_should_behave_like Protocol::WebSocket::Frame
+	end
+	
+	context "TEXT frames (without mask)" do
+		subject do
+			described_class.new(true, Protocol::WebSocket::Frame::TEXT, nil, "Hello World")
 		end
 		
 		it_should_behave_like Protocol::WebSocket::Frame
