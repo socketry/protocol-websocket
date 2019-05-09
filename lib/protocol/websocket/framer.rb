@@ -68,7 +68,6 @@ module Protocol
 			
 			def write_frame(frame)
 				frame.write(@stream)
-				@stream.flush
 			end
 			
 			def read_header

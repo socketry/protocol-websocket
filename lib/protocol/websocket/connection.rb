@@ -154,6 +154,8 @@ module Protocol
 			
 			# @return [Array<Frame>] sequence of frames, the first being either text or binary, optionally followed by a number of continuation frames.
 			def next_message
+				@framer.flush
+				
 				while read_frame
 					if @frames.last&.finished?
 						frames = @frames
