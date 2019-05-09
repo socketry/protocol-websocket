@@ -83,10 +83,6 @@ module Protocol
 			attr_accessor :length
 			attr_accessor :payload
 			
-			def unpack
-				@payload
-			end
-			
 			def pack(data, mask = @mask)
 				length = data.bytesize
 				
