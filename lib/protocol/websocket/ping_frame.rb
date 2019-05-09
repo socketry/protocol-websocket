@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 require_relative 'frame'
-require_relative 'ping_frame'
+require_relative 'pong_frame'
 
 module Protocol
 	module WebSocket
@@ -27,11 +27,7 @@ module Protocol
 			OPCODE = 0x9
 			
 			def reply
-				frame = PongFrame.new
-				frame.mask = @mask
-				frame.pack @payload
-				
-				return frame
+				PongFrame.new(true, PongFrame::OPCODE, @mask, @payload)
 			end
 			
 			def apply(connection)

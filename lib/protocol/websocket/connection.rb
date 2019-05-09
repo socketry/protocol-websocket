@@ -24,7 +24,8 @@ module Protocol
 	module WebSocket
 		class Connection
 			def initialize(framer)
-				@state = :new
+				@framer = framer
+				@state = :open
 				@frames = []
 			end
 			
@@ -141,11 +142,7 @@ module Protocol
 			
 			def receive_ping(frame)
 				if @state != :closed
-					unless frame.acknowledgement?
-						reply = frame.acknowledge
-						
-						write_frame(reply)
-					end
+					write_frame(frame.reply)
 				else
 					raise ProtocolError, "Cannot receive ping in state #{@state}"
 				end

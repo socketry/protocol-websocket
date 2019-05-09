@@ -18,27 +18,37 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'frame_examples'
-require 'protocol/websocket/text_frame'
+require 'protocol/websocket/connection'
 
-RSpec.describe Protocol::WebSocket::TextFrame do
-	context "with mask" do
-		subject do
-			described_class.new.tap do |frame|
-				frame.pack("Hello World", "abcd")
-			end
-		end
-		
-		it_should_behave_like Protocol::WebSocket::Frame
-	end
+RSpec.describe Protocol::WebSocket::Connection do
+	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 	
-	context "without mask" do
-		subject do
-			described_class.new.tap do |frame|
-				frame.pack("Hello World")
-			end
+	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
+	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
+	
+	subject {described_class.new(server)}
+	
+	context "fragmented text frames" do
+		let(:text_frame) do
+			Protocol::WebSocket::TextFrame.new(false).tap{|frame| frame.pack("Hello ")}
 		end
 		
-		it_should_behave_like Protocol::WebSocket::Frame
+		let(:ping_frame) do
+			Protocol::WebSocket::PingFrame.new.tap{|frame| frame.pack("Yo")}
+		end
+		
+		let(:continuation_frame) do
+			Protocol::WebSocket::ContinuationFrame.new(true).tap{|frame| frame.pack("world!")}
+		end
+		
+		it "can reconstruct fragmented message" do
+			client.write_frame(text_frame)
+			client.write_frame(ping_frame)
+			client.write_frame(continuation_frame)
+			
+			expect(subject.next_message).to be == [text_frame, continuation_frame]
+			
+			expect(client.read_frame).to be == ping_frame.reply
+		end
 	end
 end

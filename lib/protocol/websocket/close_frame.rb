@@ -24,7 +24,7 @@ module Protocol
 	module WebSocket
 		class CloseFrame < Frame
 			OPCODE = 0x8
-			FORMAT = "nA*"
+			FORMAT = "na*"
 			
 			def unpack
 				data = super

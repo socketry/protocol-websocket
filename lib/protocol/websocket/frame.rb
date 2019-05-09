@@ -48,6 +48,10 @@ module Protocol
 				@opcode & 0x8
 			end
 			
+			def finished?
+				@finished == true
+			end
+			
 			def continued?
 				@finished == false
 			end
