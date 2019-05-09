@@ -24,7 +24,6 @@ module Protocol
 	module WebSocket
 		class BinaryFrame < Frame
 			OPCODE = 0x2
-			FORMAT = "A*"
 			
 			def apply(connection)
 				connection.receive_binary(self)
