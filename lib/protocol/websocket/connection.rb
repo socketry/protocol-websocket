@@ -45,6 +45,8 @@ module Protocol
 			end
 			
 			def read_frame
+				return nil if closed?
+				
 				frame = @framer.read_frame
 				
 				yield frame if block_given?
@@ -104,7 +106,7 @@ module Protocol
 				write_frame(frame)
 			end
 			
-			def send_close(code = 0, message = nil)
+			def send_close(code = Error::NO_ERROR, message = nil)
 				frame = CloseFrame.new
 				frame.pack(code, message)
 				
@@ -119,7 +121,7 @@ module Protocol
 				code, message = frame.unpack
 				
 				if code and code != Error::NO_ERROR
-					raise CloseError.new message, code
+					raise ClosedError.new message, code
 				end
 			end
 			
