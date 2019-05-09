@@ -39,7 +39,7 @@ module Protocol
 			end
 			
 			def close
-				send_goaway
+				send_close
 				
 				@framer.close
 			end
