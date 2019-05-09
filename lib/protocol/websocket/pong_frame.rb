@@ -18,21 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'protocol/websocket/framer'
+require_relative 'frame'
 
-require 'socket'
-
-RSpec.shared_examples_for Protocol::WebSocket::Frame do
-	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
-	
-	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
-	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
-	
-	it "can send frame over sockets" do
-		server.write_frame(subject)
-		
-		frame = client.read_frame
-		
-		expect(frame).to be == subject
+module Protocol
+	module WebSocket
+		class PongFrame < Frame
+			OPCODE = 0xA
+			
+			def apply(connection)
+				connection.receive_pong(self)
+			end
+		end
 	end
 end

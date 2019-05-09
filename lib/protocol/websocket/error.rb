@@ -52,6 +52,10 @@ module Protocol
 			attr :code
 		end
 		
+		# The connection was closed, maybe unexpectedly.
+		class ClosedError < ProtocolError
+		end
+		
 		# When the frame payload does not match expectations.
 		class FrameSizeError < ProtocolError
 		end

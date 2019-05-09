@@ -25,31 +25,15 @@ module Protocol
 		class Frame
 			include Comparable
 			
-			# Opcodes
-			CONTINUATION = 0x0
-			TEXT = 0x1
-			BINARY = 0x2
-			CLOSE = 0x8
-			PING = 0x9
-			PONG = 0xA
+			OPCODE = 0
 			
 			# @param length [Integer] the length of the payload, or nil if the header has not been read yet.
-			def initialize(fin = true, opcode = 0, mask = nil, payload = nil)
-				@fin = fin
+			def initialize(finished = true, opcode = self.class::OPCODE, mask = false, payload = nil)
+				@finished = finished
 				@opcode = opcode
 				@mask = mask
 				@length = payload&.bytesize
 				@payload = payload
-			end
-			
-			def self.read(stream)
-				frame = self.new
-				
-				if frame.read(stream)
-					return frame
-				end
-			rescue EOFError
-				return nil
 			end
 			
 			def <=> other
@@ -57,7 +41,7 @@ module Protocol
 			end
 			
 			def to_ary
-				[@fin, @opcode, @mask, @length, @payload]
+				[@finished, @opcode, @mask, @length, @payload]
 			end
 			
 			def control?
@@ -65,7 +49,7 @@ module Protocol
 			end
 			
 			def continued?
-				@fin == false
+				@finished == false
 			end
 			
 			# The generic frame header uses the following binary representation:
@@ -89,7 +73,7 @@ module Protocol
 			# |                     Payload Data continued ...                |
 			# +---------------------------------------------------------------+
 			
-			attr_accessor :fin
+			attr_accessor :finished
 			attr_accessor :opcode
 			attr_accessor :mask
 			attr_accessor :length
@@ -99,54 +83,90 @@ module Protocol
 				@payload
 			end
 			
-			def pack(payload)
-				@payload = payload
-				@length = payload.bytesize
+			def pack(data, mask = @mask)
+				length = data.bytesize
 				
-				if @length.bit_length > 64
-					raise ProtocolError, "Frame length #{@length} bigger than allowed 64-bit field!"
+				if length.bit_length > 63
+					raise ProtocolError, "Frame length #{@length} bigger than allowed maximum!"
+				end
+
+				if @mask = mask
+					@payload = String.new.b
+					
+					for i in 0...data.bytesize do
+						@payload << (data.getbyte(i) ^ mask.getbyte(i % 4))
+					end
+				else
+					@payload = data
+					@length = length
 				end
 			end
 			
-			def read(stream)
-				buffer = stream.read(2) or raise EOFError
-				first, second = buffer.unpack("CC")
-				
-				@fin = (first & 0b1000_0000 != 0)
-				# rsv = byte & 0b0111_0000
-				@opcode = first & 0b0000_1111
-				
-				@mask = (second & 0b1000_0000 != 0)
-				@length = second & 0b0111_1111
-				
-				if @length == 126
-					buffer = stream.read(2) or raise EOFError
-					@length = buffer.unpack('n').first
-				elsif @length == 127
-					buffer = stream.read(4) or raise EOFError
-					@length = buffer.unpack('Q>').first
-				end
-				
+			def unpack
 				if @mask
-					@mask = stream.read(4) or raise EOFError
-					@payload = read_mask(@mask, @length, stream)
+					data = String.new.b
+					
+					for i in 0...@payload.bytesize do
+						data << (@payload.getbyte(i) ^ @mask.getbyte(i % 4))
+					end
+					
+					return data
 				else
-					@mask = nil
-					@payload = stream.read(@length) or raise EOFError
+					return @payload
+				end
+			end
+			
+			def apply(connection)
+				connection.receive_frame(self)
+			end
+			
+			def self.parse_header(buffer)
+				byte = buffer.unpack("C").first
+				
+				finished = (byte & 0b1000_0000 != 0)
+				# rsv = byte & 0b0111_0000
+				opcode = byte & 0b0000_1111
+				
+				return finished, opcode
+			end
+			
+			def self.read(finished, opcode, stream, maximum_frame_size)
+				buffer = stream.read(1) or raise EOFError
+				byte = buffer.unpack("C").first
+				
+				mask = (byte & 0b1000_0000 != 0)
+				length = byte & 0b0111_1111
+				
+				if length == 126
+					buffer = stream.read(2) or raise EOFError
+					length = buffer.unpack('n').first
+				elsif length == 127
+					buffer = stream.read(4) or raise EOFError
+					length = buffer.unpack('Q>').first
 				end
 				
-				if @payload&.bytesize != @length
-					raise ProtocolError, "Invalid payload size: #{@length} != #{@payload.bytesize}!"
+				if length > maximum_frame_size
+					raise ProtocolError, "Invalid payload length: #{@length} > #{maximum_frame_size}!"
 				end
 				
-				return true
+				if mask
+					mask = stream.read(4) or raise EOFError
+				end
+				
+				payload = stream.read(length) or raise EOFError
+				
+				if payload.bytesize != length
+					raise EOFError, "Incorrect payload length: #{@length} != #{@payload.bytesize}!"
+				end
+				
+				return self.new(finished, opcode, mask, payload)
 			end
 			
 			def write(stream)
 				buffer = String.new.b
 				
 				if @payload&.bytesize != @length
-					raise ProtocolError, "Invalid payload size: #{@length} != #{@payload.bytesize}!"
+					raise ProtocolError, "Invalid payload length: #{@length} != #{@payload.bytesize}!"
 				end
 				
 				if @mask and @mask.bytesize != 4
@@ -162,7 +182,7 @@ module Protocol
 				end
 				
 				buffer << [
-					(@fin ? 0b1000_0000 : 0) | @opcode,
+					(@finished ? 0b1000_0000 : 0) | @opcode,
 					(@mask ? 0b1000_0000 : 0) | short_length,
 				].pack('CC')
 				
@@ -172,32 +192,8 @@ module Protocol
 					buffer << [@length].pack('Q>')
 				end
 				
-				if @mask
-					buffer << @mask
-					write_mask(@mask, @payload, buffer)
-					stream.write(buffer)
-				else
-					stream.write(buffer)
-					stream.write(@payload)
-				end
-			end
-			
-			private
-			
-			def read_mask(mask, length, stream)
-				data = stream.read(length) or raise EOFError
-				
-				for i in 0...data.bytesize do
-					data.setbyte(i, data.getbyte(i) ^ mask.getbyte(i % 4))
-				end
-				
-				return data
-			end
-			
-			def write_mask(mask, data, buffer)
-				for i in 0...data.bytesize do
-					buffer << (data.getbyte(i) ^ mask.getbyte(i % 4))
-				end
+				stream.write(buffer)
+				stream.write(@payload)
 			end
 		end
 	end
