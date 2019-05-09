@@ -34,6 +34,10 @@ module Protocol
 			# Buffered frames which form part of a complete message.
 			attr_accessor :frames
 			
+			def flush
+				@framer.flush
+			end
+			
 			def closed?
 				@state == :closed
 			end
