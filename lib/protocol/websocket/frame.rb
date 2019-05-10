@@ -131,17 +131,17 @@ module Protocol
 			end
 			
 			def self.read(finished, opcode, stream, maximum_frame_size)
-				buffer = stream.read(1) or raise EOFError
+				buffer = stream.read(1) or raise EOFError, "Could not read header!"
 				byte = buffer.unpack("C").first
 				
 				mask = (byte & 0b1000_0000 != 0)
 				length = byte & 0b0111_1111
 				
 				if length == 126
-					buffer = stream.read(2) or raise EOFError
+					buffer = stream.read(2) or raise EOFError, "Could not read length!"
 					length = buffer.unpack('n').first
 				elsif length == 127
-					buffer = stream.read(4) or raise EOFError
+					buffer = stream.read(4) or raise EOFError, "Could not read length!"
 					length = buffer.unpack('Q>').first
 				end
 				
@@ -150,10 +150,10 @@ module Protocol
 				end
 				
 				if mask
-					mask = stream.read(4) or raise EOFError
+					mask = stream.read(4) or raise EOFError, "Could not read mask!"
 				end
 				
-				payload = stream.read(length) or raise EOFError
+				payload = stream.read(length) or raise EOFError, "Could not read payload!"
 				
 				if payload.bytesize != length
 					raise EOFError, "Incorrect payload length: #{@length} != #{@payload.bytesize}!"
