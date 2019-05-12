@@ -165,7 +165,30 @@ module Protocol
 				warn "Unhandled frame #{frame.inspect}"
 			end
 			
-			# @return [Array<Frame>] sequence of frames, the first being either text or binary, optionally followed by a number of continuation frames.
+			# @param buffer [String] a unicode or binary string.
+			def write(buffer)
+				if buffer.encoding == Encoding::UTF_8
+					send_text(buffer)
+				else
+					send_data(buffer)
+				end
+			end
+			
+			# @return [String] a unicode or binary string.
+			def read
+				@framer.flush
+				
+				while read_frame
+					if @frames.last&.finished?
+						buffer = @frames.map(&:unpack).join
+						@frames = []
+						
+						return buffer
+					end
+				end
+			end
+			
+			# Deprecated.
 			def next_message
 				@framer.flush
 				

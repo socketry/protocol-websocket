@@ -46,7 +46,9 @@ RSpec.describe Protocol::WebSocket::Connection do
 			client.write_frame(ping_frame)
 			client.write_frame(continuation_frame)
 			
-			expect(subject.next_message).to be == [text_frame, continuation_frame]
+			message = subject.read
+			expect(message).to be == "Hello world!"
+			expect(message.encoding).to be == Encoding::UTF_8
 			
 			expect(client.read_frame).to be == ping_frame.reply
 		end

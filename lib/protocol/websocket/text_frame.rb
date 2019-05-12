@@ -25,6 +25,10 @@ module Protocol
 		class TextFrame < Frame
 			OPCODE = 0x1
 			
+			def data?
+				true
+			end
+			
 			def unpack
 				super.force_encoding(Encoding::UTF_8)
 			end

@@ -25,6 +25,10 @@ module Protocol
 		class BinaryFrame < Frame
 			OPCODE = 0x2
 			
+			def data?
+				true
+			end
+			
 			def apply(connection)
 				connection.receive_binary(self)
 			end
