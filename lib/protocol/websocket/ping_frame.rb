@@ -27,7 +27,7 @@ module Protocol
 			OPCODE = 0x9
 			
 			def reply
-				PongFrame.new(true, PongFrame::OPCODE, @mask, @payload)
+				PongFrame.new(true, @payload, mask: @mask)
 			end
 			
 			def apply(connection)

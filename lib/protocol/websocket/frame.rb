@@ -28,7 +28,7 @@ module Protocol
 			OPCODE = 0
 			
 			# @param length [Integer] the length of the payload, or nil if the header has not been read yet.
-			def initialize(finished = true, opcode = self.class::OPCODE, mask = false, payload = nil)
+			def initialize(finished = true, payload = nil, opcode: self.class::OPCODE, mask: false)
 				@finished = finished
 				@opcode = opcode
 				@mask = mask
@@ -83,19 +83,21 @@ module Protocol
 			attr_accessor :length
 			attr_accessor :payload
 			
-			def pack(data, mask = @mask)
+			def pack(data)
 				length = data.bytesize
 				
 				if length.bit_length > 63
 					raise ProtocolError, "Frame length #{@length} bigger than allowed maximum!"
 				end
 
-				if @mask = mask
+				if @mask
 					@payload = String.new.b
 					
 					for i in 0...data.bytesize do
 						@payload << (data.getbyte(i) ^ mask.getbyte(i % 4))
 					end
+					
+					@length = length
 				else
 					@payload = data
 					@length = length
@@ -159,14 +161,14 @@ module Protocol
 					raise EOFError, "Incorrect payload length: #{@length} != #{@payload.bytesize}!"
 				end
 				
-				return self.new(finished, opcode, mask, payload)
+				return self.new(finished, payload, opcode: opcode, mask: mask)
 			end
 			
 			def write(stream)
 				buffer = String.new.b
 				
 				if @payload&.bytesize != @length
-					raise ProtocolError, "Invalid payload length: #{@length} != #{@payload.bytesize}!"
+					raise ProtocolError, "Invalid payload length: #{@length} != #{@payload.bytesize} for #{self}!"
 				end
 				
 				if @mask and @mask.bytesize != 4
@@ -191,6 +193,8 @@ module Protocol
 				elsif short_length == 127
 					buffer << [@length].pack('Q>')
 				end
+				
+				buffer << @mask if @mask
 				
 				stream.write(buffer)
 				stream.write(@payload)

@@ -24,8 +24,8 @@ require 'protocol/websocket/text_frame'
 RSpec.describe Protocol::WebSocket::TextFrame do
 	context "with mask" do
 		subject do
-			described_class.new.tap do |frame|
-				frame.pack("Hello World", "abcd")
+			described_class.new(mask: "abcd").tap do |frame|
+				frame.pack("Hello World")
 			end
 		end
 		

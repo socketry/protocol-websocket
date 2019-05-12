@@ -29,8 +29,8 @@ module Protocol
 				super.force_encoding(Encoding::UTF_8)
 			end
 			
-			def pack(data, mask = @mask)
-				super(data.b, mask = @mask)
+			def pack(data)
+				super(data.b)
 			end
 			
 			def apply(connection)
