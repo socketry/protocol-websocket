@@ -50,7 +50,7 @@ module Protocol
 			end
 			
 			def close
-				send_close
+				send_close unless closed?
 				
 				@framer.close
 			end
@@ -121,7 +121,8 @@ module Protocol
 				frame = CloseFrame.new(mask: @mask)
 				frame.pack(code, message)
 				
-				write_frame(frame)
+				self.write_frame(frame)
+				self.flush
 				
 				@state = :closed
 			end
