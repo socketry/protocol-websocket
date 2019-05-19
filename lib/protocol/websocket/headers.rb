@@ -19,13 +19,32 @@
 # THE SOFTWARE.
 
 require 'digest/sha1'
+require 'securerandom'
 
 module Protocol
 	module WebSocket
-		GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-		
-		def self.accept_digest(key)
-			Digest::SHA1.base64digest(key + GUID)
+		module Headers
+			# The protocol string used for the `upgrade:` header (HTTP/1) and `:protocol` pseudo-header (HTTP/2).
+			PROTOCOL = "websocket".freeze
+			
+			# These general headers are used to negotiate the connection.
+			SEC_WEBSOCKET_PROTOCOL = 'sec-websocket-protocol'.freeze
+			SEC_WEBSOCKET_VERSION = 'sec-websocket-version'.freeze
+			
+			SEC_WEBSOCKET_KEY = 'sec-websocket-key'.freeze
+			SEC_WEBSOCKET_ACCEPT = 'sec-websocket-accept'.freeze
+			
+			GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+			
+			# Valid for the `SEC_WEBSOCKET_KEY` header.
+			def self.generate_key
+				SecureRandom.base64(16)
+			end
+			
+			# Valid for the `SEC_WEBSOCKET_ACCEPT` header.
+			def self.accept_digest(key)
+				Digest::SHA1.base64digest(key + GUID)
+			end
 		end
 	end
 end
