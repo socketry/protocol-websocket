@@ -20,7 +20,7 @@
 
 require 'protocol/websocket/headers'
 
-RSpec.describe Protocol::WebSocket::Headers do
+RSpec.describe Protocol::WebSocket::Headers::Nounce do
 	describe '#generate_key' do
 		subject {described_class.generate_key}
 		

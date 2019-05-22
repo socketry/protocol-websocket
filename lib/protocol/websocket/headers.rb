@@ -34,16 +34,18 @@ module Protocol
 			SEC_WEBSOCKET_KEY = 'sec-websocket-key'.freeze
 			SEC_WEBSOCKET_ACCEPT = 'sec-websocket-accept'.freeze
 			
-			GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-			
-			# Valid for the `SEC_WEBSOCKET_KEY` header.
-			def self.generate_key
-				SecureRandom.base64(16)
-			end
-			
-			# Valid for the `SEC_WEBSOCKET_ACCEPT` header.
-			def self.accept_digest(key)
-				Digest::SHA1.base64digest(key + GUID)
+			module Nounce
+				GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+				
+				# Valid for the `SEC_WEBSOCKET_KEY` header.
+				def self.generate_key
+					SecureRandom.base64(16)
+				end
+				
+				# Valid for the `SEC_WEBSOCKET_ACCEPT` header.
+				def self.accept_digest(key)
+					Digest::SHA1.base64digest(key + GUID)
+				end
 			end
 		end
 	end
