@@ -2,7 +2,7 @@
 
 Provides a low-level implementation of the WebSocket protocol according to [RFC6455](https://tools.ietf.org/html/rfc6455). It only implements the latest stable version (13).
 
-[![Build Status](https://secure.travis-ci.com/socketry/protocol-websocket.svg)](http://travis-ci.com/socketry/protocol-websocket)
+[![Build Status](https://travis-ci.com/socketry/protocol-websocket.svg?branch=master)](http://travis-ci.com/socketry/protocol-websocket)
 
 ## Installation
 
