@@ -167,6 +167,10 @@ module Protocol
 				end
 			end
 			
+			def receive_pong(frame)
+				# Ignore.
+			end
+			
 			def receive_frame(frame)
 				warn "Unhandled frame #{frame.inspect}"
 			end
