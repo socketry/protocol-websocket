@@ -142,10 +142,10 @@ module Protocol
 				end
 			end
 			
-			def send_ping(data)
+			def send_ping(data = nil)
 				if @state != :closed
 					frame = PingFrame.new(mask: @mask)
-					frame.pack(data)
+					frame.pack(data) if data
 					
 					write_frame(frame)
 				else
