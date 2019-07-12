@@ -147,7 +147,7 @@ module Protocol
 					buffer = stream.read(2) or raise EOFError, "Could not read length!"
 					length = buffer.unpack('n').first
 				elsif length == 127
-					buffer = stream.read(4) or raise EOFError, "Could not read length!"
+					buffer = stream.read(8) or raise EOFError, "Could not read length!"
 					length = buffer.unpack('Q>').first
 				end
 				
