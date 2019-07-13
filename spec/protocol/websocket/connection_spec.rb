@@ -69,21 +69,36 @@ RSpec.describe Protocol::WebSocket::Connection do
 
 	context "message length" do
 		it "can handle a short message (<126)" do
-			client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 15)})
+			thread = Thread.new do
+				client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 15)})
+			end
+			
 			message = subject.read
 			expect(message.size).to be == 15
+			
+			thread.join
 		end
 
 		it "can handle a medium message (<65k)" do
-			client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 60_000)})
+			thread = Thread.new do
+				client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 60_000)})
+			end
+			
 			message = subject.read
 			expect(message.size).to be == 60_000
+			
+			thread.join
 		end
 
 		it "can handle large message (>65k)" do
-			client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 90_000)})
+			thread = Thread.new do
+				client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 90_000)})
+			end
+			
 			message = subject.read
 			expect(message.size).to be == 90_000
+			
+			thread.join
 		end
 	end
 end
