@@ -180,7 +180,7 @@ module Protocol
 				if buffer.encoding == Encoding::UTF_8
 					send_text(buffer)
 				else
-					send_data(buffer)
+					send_binary(buffer)
 				end
 			end
 			
