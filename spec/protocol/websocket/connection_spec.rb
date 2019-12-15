@@ -66,7 +66,23 @@ RSpec.describe Protocol::WebSocket::Connection do
 			expect(client.read_frame).to be == ping_frame.reply
 		end
 	end
-
+	
+	context "text messages" do
+		it "can send and receive text frames" do
+			subject.write("Hello World".encode(Encoding::UTF_8))
+			
+			expect(client.read_frame).to be_kind_of(Protocol::WebSocket::TextFrame)
+		end
+	end
+	
+	context "binary messages" do
+		it "can send and receive binary frames" do
+			subject.write("Hello World".encode(Encoding::BINARY))
+			
+			expect(client.read_frame).to be_kind_of(Protocol::WebSocket::BinaryFrame)
+		end
+	end
+	
 	context "message length" do
 		it "can handle a short message (<126)" do
 			thread = Thread.new do

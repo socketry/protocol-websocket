@@ -177,6 +177,9 @@ module Protocol
 			
 			# @param buffer [String] a unicode or binary string.
 			def write(buffer)
+				# https://tools.ietf.org/html/rfc6455#section-5.6
+				
+				# Text: The "Payload data" is text data encoded as UTF-8
 				if buffer.encoding == Encoding::UTF_8
 					send_text(buffer)
 				else
