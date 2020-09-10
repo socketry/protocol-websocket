@@ -2,30 +2,22 @@
 
 Provides a low-level implementation of the WebSocket protocol according to [RFC6455](https://tools.ietf.org/html/rfc6455). It only implements the latest stable version (13).
 
-[![Build Status](https://travis-ci.com/socketry/protocol-websocket.svg?branch=master)](http://travis-ci.com/socketry/protocol-websocket)
+[![Development Status](https://github.com/socketry/protocol-websocket/workflows/Development/badge.svg)](https://github.com/socketry/protocol-websocket/actions?workflow=Development)
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add the gem to your project:
 
-```ruby
-gem 'protocol-websocket'
-```
-
-And then execute:
-
-	$ bundle
-
-Or install it yourself as:
-
-	$ gem install protocol-websocket
+~~~ bash
+$ bundle add protocol-websocket
+~~~
 
 ## Usage
 
 Here is a basic WebSocket client:
 
-```ruby
-stream = # connect to remote system
+``` ruby
+stream = ... # connect to remote system
 framer = Protocol::WebSocket::Framer.new(stream)
 
 frame = framer.read_frame
@@ -33,17 +25,17 @@ frame = framer.read_frame
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+1.  Fork it
+2.  Create your feature branch (`git checkout -b my-new-feature`)
+3.  Commit your changes (`git commit -am 'Add some feature'`)
+4.  Push to the branch (`git push origin my-new-feature`)
+5.  Create new Pull Request
 
 ## License
 
 Released under the MIT license.
 
-Copyright, 2019, by [Samuel G. D. Williams](http://www.codeotaku.com/samuel-williams).  
+Copyright, 2019, by [Samuel G. D. Williams](https://www.codeotaku.com).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
