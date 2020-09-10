@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require_relative 'frame_examples'
+
 require 'protocol/websocket/text_frame'
 
 RSpec.describe Protocol::WebSocket::TextFrame do
@@ -30,6 +31,14 @@ RSpec.describe Protocol::WebSocket::TextFrame do
 		end
 		
 		it_should_behave_like Protocol::WebSocket::Frame
+		
+		it "encodes binary representation" do
+			buffer = StringIO.new
+			
+			subject.write(buffer)
+			
+			expect(buffer.string).to be == "\x81\x8Babcd)\a\x0F\b\x0EB4\v\x13\x0E\a"
+		end
 	end
 	
 	context "without mask" do
@@ -40,5 +49,13 @@ RSpec.describe Protocol::WebSocket::TextFrame do
 		end
 		
 		it_should_behave_like Protocol::WebSocket::Frame
+		
+		it "encodes binary representation" do
+			buffer = StringIO.new
+			
+			subject.write(buffer)
+			
+			expect(buffer.string).to be == "\x81\vHello World"
+		end
 	end
 end

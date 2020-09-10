@@ -28,20 +28,21 @@ RSpec.describe Protocol::WebSocket::Connection do
 	
 	subject {described_class.new(server)}
 	
-	it "doesn't generate mask" do
+	it "doesn't generate mask by default" do
 		expect(subject.mask).to be nil
 	end
 	
-	context "insecure connection" do
+	context "with masked connection" do
 		subject {described_class.new(server, mask: true)}
 		
-		it "generates mask" do
-			expect(subject.mask).to be_a String
-			expect(subject.mask.bytesize).to be == 4
+		it "generates valid mask" do
+			frame = subject.send_text("Hello World")
+			expect(frame.mask).to be_a String
+			expect(frame.mask.bytesize).to be == 4
 		end
 	end
 	
-	context "fragmented text frames" do
+	context "with fragmented text frames" do
 		let(:text_frame) do
 			Protocol::WebSocket::TextFrame.new(false).tap{|frame| frame.pack("Hello ")}
 		end

@@ -27,8 +27,13 @@ module Protocol
 			
 			OPCODE = 0
 			
-			# @param length [Integer] the length of the payload, or nil if the header has not been read yet.
+			# @parameter length [Integer] The length of the payload, or nil if the header has not been read yet.
+			# @parameter mask [Boolean | String] An optional 4-byte string which is used to mask the payload.
 			def initialize(finished = true, payload = nil, opcode: self.class::OPCODE, mask: false)
+				if mask == true
+					mask = SecureRandom.bytes(4)
+				end
+				
 				@finished = finished
 				@opcode = opcode
 				@mask = mask
@@ -109,7 +114,7 @@ module Protocol
 			end
 			
 			def unpack
-				if @mask
+				if @mask and !@payload.empty?
 					data = String.new.b
 					
 					for i in 0...@payload.bytesize do

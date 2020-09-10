@@ -26,8 +26,8 @@ module Protocol
 		class PingFrame < Frame
 			OPCODE = 0x9
 			
-			def reply
-				PongFrame.new(true, @payload, mask: @mask)
+			def reply(**options)
+				PongFrame.new(true, self.unpack, **options)
 			end
 			
 			def apply(connection)
