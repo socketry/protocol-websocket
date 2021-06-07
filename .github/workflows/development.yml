@@ -32,13 +32,22 @@ jobs:
             ruby: head
             experimental: true
     
+    env:
+      BUNDLE_WITH: autobahn_tests
+    
     steps:
     - uses: actions/checkout@v2
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{matrix.ruby}}
         bundler-cache: true
+    - uses: actions/setup-python@v2
+      with:
+        python-version: pypy2
     
     - name: Run tests
       timeout-minutes: 5
       run: ${{matrix.env}} bundle exec rspec
+    - name: Run Autobahn server tests
+      timeout-minutes: 5
+      run: ${{matrix.env}} ruby autobahn-tests/autobahn-server-tests.rb
