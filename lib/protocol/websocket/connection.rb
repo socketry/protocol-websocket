@@ -50,8 +50,8 @@ module Protocol
 				@state == :closed
 			end
 			
-			def close
-				send_close unless closed?
+			def close(code = Error::NO_ERROR, message = "")
+				send_close(code, message) unless closed?
 				
 				@framer.close
 			end
@@ -120,9 +120,9 @@ module Protocol
 				write_frame(frame)
 			end
 			
-			def send_close(code = Error::NO_ERROR, message = nil)
+			def send_close(code = Error::NO_ERROR, reason = "")
 				frame = CloseFrame.new(mask: @mask)
-				frame.pack(code, message)
+				frame.pack(code, reason)
 				
 				self.write_frame(frame)
 				self.flush
@@ -133,7 +133,9 @@ module Protocol
 			def receive_close(frame)
 				@state = :closed
 				
-				code, message = frame.unpack
+				code, reason = frame.unpack
+				
+				send_close(code, reason)
 				
 				if code and code != Error::NO_ERROR
 					raise ClosedError.new message, code
@@ -191,10 +193,12 @@ module Protocol
 				
 				while read_frame
 					if @frames.last&.finished?
-						buffer = @frames.map(&:unpack).join
+						buffer = @frames.map(&:unpack).join("")
+						message = @frames.first.decode_message(buffer)
+						
 						@frames = []
 						
-						return buffer
+						return message
 					end
 				end
 			end

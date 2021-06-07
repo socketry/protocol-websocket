@@ -29,12 +29,31 @@ module Protocol
 				true
 			end
 			
-			def unpack
-				super.force_encoding(Encoding::UTF_8)
-			end
+			# NOTE: This is here as a reminder that there is no guarantee that a
+			#       frame is valid UTF-8, only the full message.
+			#
+			# FIXME: In theory we should fail fast on invalid codepoints here.
+			#
+			# def unpack
+			#   super
+			# end
 			
 			def pack(data)
-				super(data.b)
+				if data.encoding == Encoding::UTF_8
+					super(data)
+				else
+					super(data.encode(Encoding::UTF_8))
+				end
+			end
+			
+			def decode_message(buffer)
+				buffer.force_encoding(Encoding::UTF_8)
+				
+				unless buffer.valid_encoding?
+					raise ProtocolError, "invalid UTF-8 in text frame!"
+				end
+				
+				buffer
 			end
 			
 			def apply(connection)

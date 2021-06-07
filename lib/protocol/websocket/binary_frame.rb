@@ -29,6 +29,10 @@ module Protocol
 				true
 			end
 			
+			def decode_message(buffer)
+				buffer
+			end
+			
 			def apply(connection)
 				connection.receive_binary(self)
 			end

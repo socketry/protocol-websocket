@@ -50,7 +50,7 @@ module Protocol
 			end
 			
 			def control?
-				@opcode & 0x8
+				@opcode & 0x8 != 0
 			end
 			
 			def data?
@@ -100,7 +100,7 @@ module Protocol
 				end
 
 				if @mask
-					@payload = String.new.b
+					@payload = String.new(encoding: Encoding::BINARY)
 					
 					for i in 0...data.bytesize do
 						@payload << (data.getbyte(i) ^ mask.getbyte(i % 4))
@@ -115,7 +115,7 @@ module Protocol
 			
 			def unpack
 				if @mask and !@payload.empty?
-					data = String.new.b
+					data = String.new(encoding: Encoding::BINARY)
 					
 					for i in 0...@payload.bytesize do
 						data << (@payload.getbyte(i) ^ @mask.getbyte(i % 4))
@@ -135,8 +135,18 @@ module Protocol
 				byte = buffer.unpack("C").first
 				
 				finished = (byte & 0b1000_0000 != 0)
-				# rsv = byte & 0b0111_0000
+				rsv = byte & 0b0111_0000
 				opcode = byte & 0b0000_1111
+
+				unless rsv == 0
+					raise ProtocolError, "RSV = #{rsv >> 4}, expected 0!"
+				end
+
+				if (0x3 .. 0x7).include?(opcode)
+					raise ProtocolError, "non-control opcode = #{opcode} is reserved!"
+				elsif (0xB .. 0xF).include?(opcode)
+					raise ProtocolError, "control opcode = #{opcode} is reserved!"
+				end
 				
 				return finished, opcode
 			end
@@ -147,6 +157,14 @@ module Protocol
 				
 				mask = (byte & 0b1000_0000 != 0)
 				length = byte & 0b0111_1111
+				
+				if opcode & 0x8 != 0
+					if length > 125
+						raise ProtocolError, "Invalid control frame payload length: #{length} > 125!"
+					elsif !finished
+						raise ProtocolError, "Fragmented control frame!"
+					end
+				end
 				
 				if length == 126
 					buffer = stream.read(2) or raise EOFError, "Could not read length!"
@@ -174,7 +192,7 @@ module Protocol
 			end
 			
 			def write(stream)
-				buffer = String.new.b
+				buffer = String.new(encoding: Encoding::BINARY)
 				
 				if @payload&.bytesize != @length
 					raise ProtocolError, "Invalid payload length: #{@length} != #{@payload.bytesize} for #{self}!"
