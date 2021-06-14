@@ -8,9 +8,9 @@ Provides a low-level implementation of the WebSocket protocol according to [RFC6
 
 Add the gem to your project:
 
-~~~ bash
+``` bash
 $ bundle add protocol-websocket
-~~~
+```
 
 ## Usage
 
