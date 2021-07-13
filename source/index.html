@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		
+			<title>Source</title>
+		
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		
+		<link rel="icon" type="image/png" href="../_static/icon.png"/>
+		<link rel="stylesheet" href="../_static/site.css" type="text/css" media="screen"/>
+		
+		<script src="../_components/jquery/jquery.min.js"></script>
+		<script src="../_components/jquery-syntax/jquery.syntax.min.js"></script>
+		
+		<script src="../_static/links.js"></script>
+		
+		<script type="text/javascript">
+		//<![CDATA[
+			jQuery(function($) {
+				$.syntax();
+			});
+		//]]>
+		</script>
+	</head>
+
+	<body>
+		<header> › <a class="link" href="../index.html">Project</a> › <a class="link" href="index.html">Source</a></header>
+		
+		<main>
+			
+	<h1>Source</h1>
+	
+	<ul class="index"><li>
+					<a href="Protocol/index.html"><code class="language-ruby">module Protocol</code></a>
+					
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/index.html"><code class="language-ruby">module WebSocket</code></a>
+					
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/Error/index.html"><code class="language-ruby">class Error &lt; HTTP::Error</code></a>
+					
+						<p>Status codes as defined by <a href="https://tools.ietf.org/html/rfc6455#section-7.4.1">https://tools.ietf.org/html/rfc6455#section-7.4.1</a>.</p>
+
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/Error/index.html#Protocol%3A%3AWebSocket%3A%3AError%3A%3ANO_ERROR"><code class="language-ruby">NO_ERROR = 1000</code></a>
+					
+						<p>Indicates a normal closure, meaning that the purpose for which the connection was established has been fulfilled.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Error/index.html#Protocol%3A%3AWebSocket%3A%3AError%3A%3AGOING_AWAY"><code class="language-ruby">GOING_AWAY = 1001</code></a>
+					
+						<p>Indicates that an endpoint is &quot;going away&quot;, such as a server going down or a browser having navigated away from a page.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Error/index.html#Protocol%3A%3AWebSocket%3A%3AError%3A%3APROTOCOL_ERROR"><code class="language-ruby">PROTOCOL_ERROR = 1002</code></a>
+					
+						<p>Indicates that an endpoint is terminating the connection due to a protocol error.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Error/index.html#Protocol%3A%3AWebSocket%3A%3AError%3A%3AINVALID_DATA"><code class="language-ruby">INVALID_DATA = 1003</code></a>
+					
+						<p>Indicates that an endpoint is terminating the connection because it has received a type of data it cannot accept.</p>
+
+					
+									</li></ul>				</li><li>
+					<a href="Protocol/WebSocket/ProtocolError/index.html"><code class="language-ruby">class ProtocolError &lt; Error</code></a>
+					
+						<p>Raised by stream or connection handlers, results in GOAWAY frame</p>
+
+					
+					<ul class="index"></ul>				</li><li>
+					<a href="Protocol/WebSocket/ClosedError/index.html"><code class="language-ruby">class ClosedError &lt; ProtocolError</code></a>
+					
+						<p>The connection was closed, maybe unexpectedly.</p>
+
+					
+					<ul class="index"></ul>				</li><li>
+					<a href="Protocol/WebSocket/FrameSizeError/index.html"><code class="language-ruby">class FrameSizeError &lt; ProtocolError</code></a>
+					
+						<p>When the frame payload does not match expectations.</p>
+
+					
+					<ul class="index"></ul>				</li><li>
+					<a href="Protocol/WebSocket/index.html#Protocol%3A%3AWebSocket%3A%3AFRAMES"><code class="language-ruby">FRAMES</code></a>
+					
+						<p>HTTP/2 frame type mapping as defined by the spec.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/index.html#Protocol%3A%3AWebSocket%3A%3AMAXIMUM_ALLOWED_FRAME_SIZE"><code class="language-ruby">MAXIMUM_ALLOWED_FRAME_SIZE = 2**63</code></a>
+					
+						<p>The maximum allowed frame size in bytes.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Framer/index.html"><code class="language-ruby">class Framer</code></a>
+					
+						<p>Wraps an underlying <code class="language-ruby">Async::IO::Stream</code> for reading and writing binary data into structured frames.</p>
+
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/Framer/index.html#Protocol%3A%3AWebSocket%3A%3AFramer%23read_frame"><code class="language-ruby">def read_frame(maximum_frame_size = MAXIMUM_ALLOWED_FRAME_SIZE)</code></a>
+					
+						<p>Read a frame from the underlying stream.</p>
+
+					
+									</li></ul>				</li><li>
+					<a href="Protocol/WebSocket/ContinuationFrame/index.html"><code class="language-ruby">class ContinuationFrame &lt; Frame</code></a>
+					
+					
+					<ul class="index"></ul>				</li><li>
+					<a href="Protocol/WebSocket/PingFrame/index.html"><code class="language-ruby">class PingFrame &lt; Frame</code></a>
+					
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/PingFrame/index.html#Protocol%3A%3AWebSocket%3A%3APingFrame%23reply"><code class="language-ruby">def reply(**options)</code></a>
+					
+						<p>Generate a suitable reply.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/PingFrame/index.html#Protocol%3A%3AWebSocket%3A%3APingFrame%23apply"><code class="language-ruby">def apply(connection)</code></a>
+					
+						<p>Apply this frame to the specified connection.</p>
+
+					
+									</li></ul>				</li><li>
+					<a href="Protocol/WebSocket/PongFrame/index.html"><code class="language-ruby">class PongFrame &lt; Frame</code></a>
+					
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/PongFrame/index.html#Protocol%3A%3AWebSocket%3A%3APongFrame%23apply"><code class="language-ruby">def apply(connection)</code></a>
+					
+						<p>Apply this frame to the specified connection.</p>
+
+					
+									</li></ul>				</li><li>
+					<a href="Protocol/WebSocket/Headers/index.html"><code class="language-ruby">module Headers</code></a>
+					
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/Headers/index.html#Protocol%3A%3AWebSocket%3A%3AHeaders%3A%3APROTOCOL"><code class="language-ruby">PROTOCOL = &quot;websocket&quot;.freeze</code></a>
+					
+						<p>The protocol string used for the <code>upgrade:</code> header (HTTP/1) and <code>:protocol</code> pseudo-header (HTTP/2).</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Headers/index.html#Protocol%3A%3AWebSocket%3A%3AHeaders%3A%3ASEC_WEBSOCKET_PROTOCOL"><code class="language-ruby">SEC_WEBSOCKET_PROTOCOL = 'sec-websocket-protocol'.freeze</code></a>
+					
+						<p>The WebSocket protocol header, used for application level protocol negotiation.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Headers/index.html#Protocol%3A%3AWebSocket%3A%3AHeaders%3A%3ASEC_WEBSOCKET_VERSION"><code class="language-ruby">SEC_WEBSOCKET_VERSION = 'sec-websocket-version'.freeze</code></a>
+					
+						<p>The WebSocket version header. Used for negotiating binary protocol version.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Headers/Nounce/index.html"><code class="language-ruby">module Nounce</code></a>
+					
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/Headers/Nounce/index.html#Protocol%3A%3AWebSocket%3A%3AHeaders%3A%3ANounce.generate_key"><code class="language-ruby">def self.generate_key</code></a>
+					
+						<p>Valid for the <code>SEC_WEBSOCKET_KEY</code> header.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Headers/Nounce/index.html#Protocol%3A%3AWebSocket%3A%3AHeaders%3A%3ANounce.accept_digest"><code class="language-ruby">def self.accept_digest(key)</code></a>
+					
+						<p>Valid for the <code>SEC_WEBSOCKET_ACCEPT</code> header.</p>
+
+					
+									</li></ul>				</li></ul>				</li><li>
+					<a href="Protocol/WebSocket/BinaryFrame/index.html"><code class="language-ruby">class BinaryFrame &lt; Frame</code></a>
+					
+					
+					<ul class="index"></ul>				</li><li>
+					<a href="Protocol/WebSocket/Frame/index.html"><code class="language-ruby">class Frame</code></a>
+					
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/Frame/index.html#Protocol%3A%3AWebSocket%3A%3AFrame%23initialize"><code class="language-ruby">def initialize(finished = true, payload = nil, opcode: self.class::OPCODE, mask: false)</code></a>
+					
+					
+									</li></ul>				</li><li>
+					<a href="Protocol/WebSocket/TextFrame/index.html"><code class="language-ruby">class TextFrame &lt; Frame</code></a>
+					
+						<p>Implements the text frame for sending and receiving text.</p>
+
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/TextFrame/index.html#Protocol%3A%3AWebSocket%3A%3ATextFrame%23pack"><code class="language-ruby">def pack(data)</code></a>
+					
+						<p>Pack the given data into a binary format.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/TextFrame/index.html#Protocol%3A%3AWebSocket%3A%3ATextFrame%23decode_message"><code class="language-ruby">def decode_message(buffer)</code></a>
+					
+						<p>Decode the binary buffer into a suitable text message.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/TextFrame/index.html#Protocol%3A%3AWebSocket%3A%3ATextFrame%23apply"><code class="language-ruby">def apply(connection)</code></a>
+					
+						<p>Apply this frame to the specified connection.</p>
+
+					
+									</li></ul>				</li><li>
+					<a href="Protocol/WebSocket/Connection/index.html"><code class="language-ruby">class Connection</code></a>
+					
+						<p>Wraps a framer and implements for implementing connection specific interactions like reading and writing text.</p>
+
+					
+					<ul class="index"><li>
+					<a href="Protocol/WebSocket/Connection/index.html#Protocol%3A%3AWebSocket%3A%3AConnection%23initialize"><code class="language-ruby">def initialize(framer, mask: nil)</code></a>
+					
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Connection/index.html#Protocol%3A%3AWebSocket%3A%3AConnection%23framer"><code class="language-ruby">attr :framer</code></a>
+					
+						<p>The framer which is used for reading and writing frames.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Connection/index.html#Protocol%3A%3AWebSocket%3A%3AConnection%23mask"><code class="language-ruby">attr :mask</code></a>
+					
+						<p>The (optional) mask which is used when generating frames.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Connection/index.html#Protocol%3A%3AWebSocket%3A%3AConnection%23frames"><code class="language-ruby">attr_accessor :frames</code></a>
+					
+						<p>Buffered frames which form part of a complete message.</p>
+
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Connection/index.html#Protocol%3A%3AWebSocket%3A%3AConnection%23write"><code class="language-ruby">def write(buffer)</code></a>
+					
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Connection/index.html#Protocol%3A%3AWebSocket%3A%3AConnection%23read"><code class="language-ruby">def read</code></a>
+					
+					
+									</li><li>
+					<a href="Protocol/WebSocket/Connection/index.html#Protocol%3A%3AWebSocket%3A%3AConnection%23next_message"><code class="language-ruby">def next_message</code></a>
+					
+						<p>Deprecated.</p>
+
+					
+									</li></ul>				</li><li>
+					<a href="Protocol/WebSocket/CloseFrame/index.html"><code class="language-ruby">class CloseFrame &lt; Frame</code></a>
+					
+					
+					<ul class="index"></ul>				</li></ul>				</li></ul>				</li></ul>
+				
+			<footer>Documentation generated by <a href="https://github.com/socketry/utopia-project">Utopia::Project</a>.</footer>
+		</main>
+	</body>
+</html>
