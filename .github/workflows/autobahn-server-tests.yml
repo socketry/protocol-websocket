@@ -1,4 +1,4 @@
-name: Development
+name: Autobahn Server Tests
 
 on: [push, pull_request]
 
@@ -11,26 +11,15 @@ jobs:
       matrix:
         os:
           - ubuntu
-          - macos
         
         ruby:
-          - "2.6"
-          - "2.7"
           - "3.0"
         
         experimental: [false]
         env: [""]
-        
-        include:
-          - os: ubuntu
-            ruby: truffleruby
-            experimental: true
-          - os: ubuntu
-            ruby: jruby
-            experimental: true
-          - os: ubuntu
-            ruby: head
-            experimental: true
+    
+    env:
+      BUNDLE_WITH: autobahn_tests
     
     steps:
     - uses: actions/checkout@v2
@@ -39,6 +28,10 @@ jobs:
         ruby-version: ${{matrix.ruby}}
         bundler-cache: true
     
-    - name: Run tests
+    - uses: actions/setup-python@v2
+      with:
+        python-version: pypy2
+    
+    - name: Run Autobahn server tests
       timeout-minutes: 5
-      run: ${{matrix.env}} bundle exec rspec
+      run: ${{matrix.env}} ruby autobahn-tests/autobahn-server-tests.rb
