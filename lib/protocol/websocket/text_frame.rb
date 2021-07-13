@@ -22,6 +22,7 @@ require_relative 'frame'
 
 module Protocol
 	module WebSocket
+		# Implements the text frame for sending and receiving text.
 		class TextFrame < Frame
 			OPCODE = 0x1
 			
@@ -38,6 +39,8 @@ module Protocol
 			#   super
 			# end
 			
+			# Pack the given data into a binary format.
+			# @parameter data [String] The text to pack.
 			def pack(data)
 				if data.encoding == Encoding::UTF_8
 					super(data)
@@ -46,6 +49,8 @@ module Protocol
 				end
 			end
 			
+			# Decode the binary buffer into a suitable text message.
+			# @parameter buffer [String] The binary data to unpack.
 			def decode_message(buffer)
 				buffer.force_encoding(Encoding::UTF_8)
 				
@@ -56,6 +61,7 @@ module Protocol
 				buffer
 			end
 			
+			# Apply this frame to the specified connection.
 			def apply(connection)
 				connection.receive_text(self)
 			end

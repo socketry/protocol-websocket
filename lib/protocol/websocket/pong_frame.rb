@@ -25,6 +25,7 @@ module Protocol
 		class PongFrame < Frame
 			OPCODE = 0xA
 			
+			# Apply this frame to the specified connection.
 			def apply(connection)
 				connection.receive_pong(self)
 			end

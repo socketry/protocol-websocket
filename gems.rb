@@ -6,6 +6,8 @@ gemspec
 group :maintenance, optional: true do
 	gem "bake-bundler"
 	gem "bake-modernize"
+	
+	gem "utopia-project"
 end
 
 group :autobahn_tests, optional: true do

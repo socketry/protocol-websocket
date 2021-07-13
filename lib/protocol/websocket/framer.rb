@@ -29,7 +29,7 @@ require_relative 'pong_frame'
 
 module Protocol
 	module WebSocket
-		# HTTP/2 frame type mapping as defined by the spec
+		# HTTP/2 frame type mapping as defined by the spec.
 		FRAMES = {
 			0x0 => ContinuationFrame,
 			0x1 => TextFrame,
@@ -39,8 +39,10 @@ module Protocol
 			0xA => PongFrame,
 		}.freeze
 		
+		# The maximum allowed frame size in bytes.
 		MAXIMUM_ALLOWED_FRAME_SIZE = 2**63
 		
+		# Wraps an underlying {Async::IO::Stream} for reading and writing binary data into structured frames.
 		class Framer
 			def initialize(stream, frames = FRAMES)
 				@stream = stream
@@ -55,6 +57,8 @@ module Protocol
 				@stream.flush
 			end
 			
+			# Read a frame from the underlying stream.
+			# @returns [Frame] 
 			def read_frame(maximum_frame_size = MAXIMUM_ALLOWED_FRAME_SIZE)
 				# Read the header:
 				finished, opcode = read_header

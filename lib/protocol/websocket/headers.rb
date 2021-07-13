@@ -27,8 +27,10 @@ module Protocol
 			# The protocol string used for the `upgrade:` header (HTTP/1) and `:protocol` pseudo-header (HTTP/2).
 			PROTOCOL = "websocket".freeze
 			
-			# These general headers are used to negotiate the connection.
+			# The WebSocket protocol header, used for application level protocol negotiation.
 			SEC_WEBSOCKET_PROTOCOL = 'sec-websocket-protocol'.freeze
+			
+			# The WebSocket version header. Used for negotiating binary protocol version.
 			SEC_WEBSOCKET_VERSION = 'sec-websocket-version'.freeze
 			
 			SEC_WEBSOCKET_KEY = 'sec-websocket-key'.freeze

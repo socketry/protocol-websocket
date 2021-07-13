@@ -20,3 +20,4 @@
 
 require_relative 'websocket/version'
 require_relative 'websocket/framer'
+require_relative 'websocket/connection'

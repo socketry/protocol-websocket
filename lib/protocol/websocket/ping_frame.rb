@@ -26,10 +26,13 @@ module Protocol
 		class PingFrame < Frame
 			OPCODE = 0x9
 			
+			# Generate a suitable reply.
+			# @returns [PongFrame]
 			def reply(**options)
 				PongFrame.new(true, self.unpack, **options)
 			end
 			
+			# Apply this frame to the specified connection.
 			def apply(connection)
 				connection.receive_ping(self)
 			end

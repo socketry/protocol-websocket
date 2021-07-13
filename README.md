@@ -4,24 +4,9 @@ Provides a low-level implementation of the WebSocket protocol according to [RFC6
 
 [![Development Status](https://github.com/socketry/protocol-websocket/workflows/Development/badge.svg)](https://github.com/socketry/protocol-websocket/actions?workflow=Development)
 
-## Installation
-
-Add the gem to your project:
-
-``` bash
-$ bundle add protocol-websocket
-```
-
 ## Usage
 
-Here is a basic WebSocket client:
-
-``` ruby
-stream = ... # connect to remote system
-framer = Protocol::WebSocket::Framer.new(stream)
-
-frame = framer.read_frame
-```
+Please see the [project documentation](https://socketry.github.io/protocol-websocket).
 
 ## Contributing
 
