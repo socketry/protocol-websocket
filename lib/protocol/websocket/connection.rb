@@ -51,8 +51,8 @@ module Protocol
 				@state == :closed
 			end
 			
-			def close(code = Error::NO_ERROR, message = "")
-				send_close(code, message) unless closed?
+			def close(code = Error::NO_ERROR, reason = "")
+				send_close(code, reason) unless closed?
 				
 				@framer.close
 			end
@@ -139,7 +139,7 @@ module Protocol
 				send_close(code, reason)
 				
 				if code and code != Error::NO_ERROR
-					raise ClosedError.new message, code
+					raise ClosedError.new reason, code
 				end
 			end
 			
