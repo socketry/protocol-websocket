@@ -30,28 +30,9 @@ module Protocol
 				true
 			end
 			
-			# NOTE: This is here as a reminder that there is no guarantee that a
-			#       frame is valid UTF-8, only the full message.
-			#
-			# FIXME: In theory we should fail fast on invalid codepoints here.
-			#
-			# def unpack
-			#   super
-			# end
-			
-			# Pack the given data into a binary format.
-			# @parameter data [String] The text to pack.
-			def pack(data)
-				if data.encoding == Encoding::UTF_8
-					super(data)
-				else
-					super(data.encode(Encoding::UTF_8))
-				end
-			end
-			
 			# Decode the binary buffer into a suitable text message.
 			# @parameter buffer [String] The binary data to unpack.
-			def decode_message(buffer)
+			def read_message(buffer)
 				buffer.force_encoding(Encoding::UTF_8)
 				
 				unless buffer.valid_encoding?

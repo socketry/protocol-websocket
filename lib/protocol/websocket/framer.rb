@@ -61,11 +61,11 @@ module Protocol
 			# @returns [Frame] 
 			def read_frame(maximum_frame_size = MAXIMUM_ALLOWED_FRAME_SIZE)
 				# Read the header:
-				finished, opcode = read_header
+				finished, flags, opcode = read_header
 				
 				# Read the frame:
 				klass = @frames[opcode] || Frame
-				frame = klass.read(finished, opcode, @stream, maximum_frame_size)
+				frame = klass.read(finished, flags, opcode, @stream, maximum_frame_size)
 				
 				return frame
 			end

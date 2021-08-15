@@ -27,14 +27,19 @@ module Protocol
 			
 			OPCODE = 0
 			
+			RSV1 = 0b0100
+			RSV2 = 0b0010
+			RSV3 = 0b0001
+			
 			# @parameter length [Integer] The length of the payload, or nil if the header has not been read yet.
 			# @parameter mask [Boolean | String] An optional 4-byte string which is used to mask the payload.
-			def initialize(finished = true, payload = nil, opcode: self.class::OPCODE, mask: false)
+			def initialize(finished = true, payload = nil, flags: 0, opcode: self.class::OPCODE, mask: false)
 				if mask == true
 					mask = SecureRandom.bytes(4)
 				end
 				
 				@finished = finished
+				@flags = flags
 				@opcode = opcode
 				@mask = mask
 				@length = payload&.bytesize
@@ -46,7 +51,7 @@ module Protocol
 			end
 			
 			def to_ary
-				[@finished, @opcode, @mask, @length, @payload]
+				[@finished, @flags, @opcode, @mask, @length, @payload]
 			end
 			
 			def control?
@@ -87,6 +92,7 @@ module Protocol
 			# +---------------------------------------------------------------+
 			
 			attr_accessor :finished
+			attr_accessor :flags
 			attr_accessor :opcode
 			attr_accessor :mask
 			attr_accessor :length
@@ -98,7 +104,7 @@ module Protocol
 				if length.bit_length > 63
 					raise ProtocolError, "Frame length #{@length} bigger than allowed maximum!"
 				end
-
+				
 				if @mask
 					@payload = String.new(encoding: Encoding::BINARY)
 					
@@ -135,23 +141,19 @@ module Protocol
 				byte = buffer.unpack("C").first
 				
 				finished = (byte & 0b1000_0000 != 0)
-				rsv = byte & 0b0111_0000
+				flags = (byte & 0b0111_0000) >> 4
 				opcode = byte & 0b0000_1111
-
-				unless rsv == 0
-					raise ProtocolError, "RSV = #{rsv >> 4}, expected 0!"
-				end
-
+				
 				if (0x3 .. 0x7).include?(opcode)
 					raise ProtocolError, "non-control opcode = #{opcode} is reserved!"
 				elsif (0xB .. 0xF).include?(opcode)
 					raise ProtocolError, "control opcode = #{opcode} is reserved!"
 				end
 				
-				return finished, opcode
+				return finished, flags, opcode
 			end
 			
-			def self.read(finished, opcode, stream, maximum_frame_size)
+			def self.read(finished, flags, opcode, stream, maximum_frame_size)
 				buffer = stream.read(1) or raise EOFError, "Could not read header!"
 				byte = buffer.unpack("C").first
 				
@@ -188,7 +190,7 @@ module Protocol
 					raise EOFError, "Incorrect payload length: #{@length} != #{@payload.bytesize}!"
 				end
 				
-				return self.new(finished, payload, opcode: opcode, mask: mask)
+				return self.new(finished, payload, flags: flags, opcode: opcode, mask: mask)
 			end
 			
 			def write(stream)
@@ -211,7 +213,7 @@ module Protocol
 				end
 				
 				buffer << [
-					(@finished ? 0b1000_0000 : 0) | @opcode,
+					(@finished ? 0b1000_0000 : 0) | (@flags << 4) | @opcode,
 					(@mask ? 0b1000_0000 : 0) | short_length,
 				].pack('CC')
 				

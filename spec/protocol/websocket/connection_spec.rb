@@ -18,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require 'socket'
 require 'protocol/websocket/connection'
 
 RSpec.describe Protocol::WebSocket::Connection do

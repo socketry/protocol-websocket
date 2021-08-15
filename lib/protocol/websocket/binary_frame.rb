@@ -29,7 +29,7 @@ module Protocol
 				true
 			end
 			
-			def decode_message(buffer)
+			def read_message(buffer)
 				buffer
 			end
 			

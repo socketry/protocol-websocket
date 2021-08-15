@@ -18,39 +18,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'digest/sha1'
-require 'securerandom'
+require 'socket'
+require 'protocol/websocket/connection'
+require 'protocol/websocket/extensions'
+require 'protocol/websocket/extension/compression'
 
-module Protocol
-	module WebSocket
-		module Headers
-			# The protocol string used for the `upgrade:` header (HTTP/1) and `:protocol` pseudo-header (HTTP/2).
-			PROTOCOL = "websocket".freeze
-			
-			# The WebSocket protocol header, used for application level protocol negotiation.
-			SEC_WEBSOCKET_PROTOCOL = 'sec-websocket-protocol'.freeze
-			
-			# The WebSocket version header. Used for negotiating binary protocol version.
-			SEC_WEBSOCKET_VERSION = 'sec-websocket-version'.freeze
-			
-			SEC_WEBSOCKET_KEY = 'sec-websocket-key'.freeze
-			SEC_WEBSOCKET_ACCEPT = 'sec-websocket-accept'.freeze
-			
-			SEC_WEBSOCKET_EXTENSIONS = 'sec-websocket-extensions'.freeze
-			
-			module Nounce
-				GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-				
-				# Valid for the `SEC_WEBSOCKET_KEY` header.
-				def self.generate_key
-					SecureRandom.base64(16)
-				end
-				
-				# Valid for the `SEC_WEBSOCKET_ACCEPT` header.
-				def self.accept_digest(key)
-					Digest::SHA1.base64digest(key + GUID)
-				end
-			end
-		end
+RSpec.describe Protocol::WebSocket::Extension::Compression do
+	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
+	
+	let(:allowed) {Protocol::WebSocket::Extensions.allowed}
+	
+	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
+	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
+	
+	subject {Protocol::WebSocket::Connection.new(server)}
+	
+	it "can send compressed message" do
+		described_class.server(subject, allowed)
+		
+		subject.write("Hello World!")
+		
+		frame = client.read_frame
+		client.write_frame(frame)
+		
+		expect(subject.read).to be == "Hello World!"
 	end
 end
