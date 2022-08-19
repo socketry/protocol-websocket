@@ -25,12 +25,13 @@ module Protocol
 		class Frame
 			include Comparable
 			
-			OPCODE = 0
-			
 			RSV1 = 0b0100
 			RSV2 = 0b0010
 			RSV3 = 0b0001
+			RESERVED = RSV1 | RSV2 | RSV3
 			
+			OPCODE = 0
+						
 			# @parameter length [Integer] The length of the payload, or nil if the header has not been read yet.
 			# @parameter mask [Boolean | String] An optional 4-byte string which is used to mask the payload.
 			def initialize(finished = true, payload = nil, flags: 0, opcode: self.class::OPCODE, mask: false)

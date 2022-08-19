@@ -25,16 +25,14 @@ require 'protocol/websocket/extension/compression'
 
 RSpec.describe Protocol::WebSocket::Extension::Compression do
 	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
-	
-	let(:allowed) {Protocol::WebSocket::Extensions.allowed}
-	
+		
 	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
 	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
 	
 	subject {Protocol::WebSocket::Connection.new(server)}
 	
 	it "can send compressed message" do
-		described_class.server(subject, allowed)
+		described_class.server(subject)
 		
 		subject.write("Hello World!")
 		

@@ -33,6 +33,8 @@ module Protocol
 				@state = :open
 				@frames = []
 				
+				@reserved = Frame::RESERVED
+				
 				@reader = self
 				@writer = self
 			end
@@ -43,11 +45,24 @@ module Protocol
 			# The (optional) mask which is used when generating frames.
 			attr :mask
 			
+			# The allowed reserved bits:
+			attr :reserved
+			
 			# Buffered frames which form part of a complete message.
 			attr_accessor :frames
 			
 			attr_accessor :reader
 			attr_accessor :writer
+			
+			def reserve!(bit)
+				if (@reserved & bit).zero?
+					raise "Unable to use #{bit}!"
+				end
+				
+				@reserved  &= ~bit
+				
+				return true
+			end
 			
 			def flush
 				@framer.flush
@@ -67,6 +82,10 @@ module Protocol
 				return nil if closed?
 				
 				frame = @framer.read_frame
+				
+				unless (frame.flags & @reserved).zero?
+					raise ProtocolError, "Received frame with reserved flags set!"
+				end
 				
 				yield frame if block_given?
 				

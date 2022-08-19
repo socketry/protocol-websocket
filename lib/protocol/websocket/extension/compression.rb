@@ -82,8 +82,8 @@ module Protocol
 					return header
 				end
 				
-				def self.server(connection, allowed, **options)
-					raise "Unable to use RSV1!" unless allowed.delete(:RSV1)
+				def self.server(connection, **options)
+					connection.reserve!(Frame::RSV1)
 					
 					connection.reader = Inflate.server(connection.reader, **options)
 					connection.writer = Deflate.server(connection.writer, **options)
@@ -106,8 +106,8 @@ module Protocol
 					end
 				end
 				
-				def self.client(connection, allowed, **options)
-					raise "Unable to use RSV1!" unless allowed.delete(:RSV1)
+				def self.client(connection, **options)
+					connection.reserve!(Frame::RSV1)
 					
 					connection.reader = Inflate.client(connection.reader, **options)
 					connection.writer = Deflate.client(connection.writer, **options)

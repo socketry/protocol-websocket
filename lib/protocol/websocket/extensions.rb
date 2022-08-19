@@ -21,10 +21,6 @@
 module Protocol
 	module WebSocket
 		module Extensions
-			def self.allowed
-				{RSV1: true, RSV2: true, RSV3: true}
-			end
-			
 			def self.parse(headers)
 				return to_enum(:parse) unless block_given?
 				
@@ -83,10 +79,8 @@ module Protocol
 				end
 				
 				def apply(connection)
-					allowed = {rsv1: true, rsv2: true, rsv3: true}
-					
 					@accepted.each do |(klass, options)|
-						klass.server(connection, allowed, options)
+						klass.server(connection, options)
 					end
 				end
 			end
@@ -113,7 +107,7 @@ module Protocol
 					extensions = []
 					
 					named = self.named
-					allowed = {rsv1: true, rsv2: true, rsv3: true}
+					reserved = RESERVED
 					response = []
 					
 					# Each respons header should map to at least one extension.
@@ -137,7 +131,7 @@ module Protocol
 				
 				def apply(connection)
 					@accepted.reverse_each do |(klass, options)|
-						klass.server(connection, allowed, options)
+						klass.server(connection, options)
 					end
 				end
 			end
