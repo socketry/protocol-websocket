@@ -70,7 +70,7 @@ module Protocol
 					
 					named = self.named
 					
-					# Each respons header should map to at least one extension.
+					# Each response header should map to at least one extension.
 					Extensions.parse(headers) do |name, arguments|
 						if extension = named.delete(name)
 							klass, options = extension
