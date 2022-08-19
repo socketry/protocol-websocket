@@ -16,7 +16,6 @@ jobs:
           - "3.0"
         
         experimental: [false]
-        env: [""]
     
     env:
       BUNDLE_WITH: autobahn_tests
@@ -34,4 +33,4 @@ jobs:
     
     - name: Run Autobahn server tests
       timeout-minutes: 5
-      run: ${{matrix.env}} ruby autobahn-tests/autobahn-server-tests.rb
+      run: ruby autobahn-tests/autobahn-server-tests.rb
