@@ -10,12 +10,10 @@ group :maintenance, optional: true do
 	gem "utopia-project"
 end
 
-group :autobahn_tests, optional: true do
-	gem "async-websocket", github: "socketry/async-websocket"
-	gem "falcon"
-end
-
 group :test do
 	gem "bake-test"
 	gem "bake-test-external"
+	
+	gem "async-websocket"
+	gem "falcon"
 end

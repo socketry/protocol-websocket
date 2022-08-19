@@ -18,7 +18,7 @@ app = lambda do |env|
     while message = c.read
       c.write(message)
     end
-  end
+  end or [404, {}, []]
 end
 
 run app
