@@ -18,24 +18,38 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'protocol/websocket/headers'
+require 'a_websocket_frame'
+require 'protocol/websocket/text_frame'
 
-RSpec.describe Protocol::WebSocket::Headers::Nounce do
-	describe '#generate_key' do
-		subject {described_class.generate_key}
+describe Protocol::WebSocket::TextFrame do
+	with "with mask" do
+		let(:frame) {subject.new(mask: "abcd").pack("Hello World")}
 		
-		it "can generate valid key length" do
-			expect(subject.length).to be == 24
+		it_behaves_like AWebSocketFrame
+		
+		it "encodes binary representation" do
+			buffer = StringIO.new
+			
+			frame.write(buffer)
+			
+			expect(buffer.string).to be == "\x81\x8Babcd)\a\x0F\b\x0EB4\v\x13\x0E\a"
 		end
 	end
 	
-	describe '#accept_digest' do
-		# Taken from https://tools.ietf.org/html/rfc6455#section-1.2
-		let(:key) {"dGhlIHNhbXBsZSBub25jZQ=="}
-		subject {described_class.accept_digest(key)}
+	with "without mask" do
+		let(:frame) {subject.new.pack("Hello World")}
 		
-		it "can validate digest" do
-			expect(subject).to be == "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+		it_behaves_like AWebSocketFrame
+		
+		it "encodes binary representation" do
+			buffer = StringIO.new
+			
+			frame.write(buffer)
+			
+			expect(buffer.string).to be == "\x81\vHello World"
 		end
+	end
+	
+	with "framer" do
 	end
 end

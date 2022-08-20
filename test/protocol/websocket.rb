@@ -18,27 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'socket'
-require 'protocol/websocket/connection'
-require 'protocol/websocket/extensions'
-require 'protocol/websocket/extension/compression'
+require 'protocol/websocket'
 
-RSpec.describe Protocol::WebSocket::Extension::Compression do
-	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
-		
-	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
-	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
-	
-	subject {Protocol::WebSocket::Connection.new(server)}
-	
-	it "can send compressed message" do
-		described_class.server(subject)
-		
-		subject.write("Hello World!")
-		
-		frame = client.read_frame
-		client.write_frame(frame)
-		
-		expect(subject.read).to be == "Hello World!"
+describe Protocol::WebSocket do
+	it "has a version number" do
+		expect(Protocol::WebSocket::VERSION).to be =~ /^\d+\.\d+\.\d+$/
 	end
 end

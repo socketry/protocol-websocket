@@ -1,4 +1,4 @@
-# Copyright, 2022, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,34 +20,23 @@
 
 require 'socket'
 require 'protocol/websocket/connection'
+require 'protocol/websocket/extensions'
+require 'protocol/websocket/extension/compression'
 
-RSpec.describe Protocol::WebSocket::Connection do
+describe Protocol::WebSocket::Extension::Compression do
 	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
+		
 	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
 	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
 	
-	subject {described_class.new(server)}
+	let(:connection) {Protocol::WebSocket::Connection.new(server)}
 	
-	context "case 6.4.1 invalid unicode text message in 3 fragments" do
-		let(:payload1) {"\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5".b}
-		let(:payload2) {"\xf4\x90\x80\x80".b}
-		let(:payload3) {"\x65\x64\x69\x74\x65\x64".b}
+	it "can send compressed message" do
+		connection.write("Hello World!")
 		
-		it "fails with protocol error" do
-			thread = Thread.new do
-				client.write_frame(Protocol::WebSocket::TextFrame.new(false, payload1))
-				client.write_frame(Protocol::WebSocket::ContinuationFrame.new(false, payload2))
-				client.write_frame(Protocol::WebSocket::ContinuationFrame.new(true, payload3))
-			end
-			
-			expect do
-				subject.read
-			end.to raise_error(Protocol::WebSocket::ProtocolError)
-			
-			thread.join
-		ensure
-			client.close
-			server.close
-		end
+		frame = client.read_frame
+		client.write_frame(frame)
+		
+		expect(connection.read).to be == "Hello World!"
 	end
 end

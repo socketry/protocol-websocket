@@ -18,21 +18,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'protocol/websocket/framer'
+require 'protocol/websocket/headers'
 
-require 'socket'
-
-RSpec.shared_examples_for Protocol::WebSocket::Frame do
-	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
-	
-	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
-	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
-	
-	it "can send frame over sockets" do
-		server.write_frame(subject)
+describe Protocol::WebSocket::Headers::Nounce do
+	with '#generate_key' do
+		let(:key) {subject.generate_key}
 		
-		frame = client.read_frame
+		it "can generate valid key length" do
+			expect(key.length).to be == 24
+		end
+	end
+	
+	with '#accept_digest' do
+		# Taken from https://tools.ietf.org/html/rfc6455#section-1.2
+		let(:key) {"dGhlIHNhbXBsZSBub25jZQ=="}
+		let(:digest) {subject.accept_digest(key)}
 		
-		expect(frame).to be == subject
+		it "can validate digest" do
+			expect(digest).to be == "s3pPLMBiTxaQ9kYGzzhZRbK+xOo="
+		end
 	end
 end

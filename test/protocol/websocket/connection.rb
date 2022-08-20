@@ -21,29 +21,29 @@
 require 'socket'
 require 'protocol/websocket/connection'
 
-RSpec.describe Protocol::WebSocket::Connection do
+describe Protocol::WebSocket::Connection do
 	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 	
 	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
 	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
 	
-	subject {described_class.new(server)}
+	let(:connection) {subject.new(server)}
 	
 	it "doesn't generate mask by default" do
-		expect(subject.mask).to be nil
+		expect(connection.mask).to be == nil
 	end
 	
-	context "with masked connection" do
-		subject {described_class.new(server, mask: true)}
+	with "masked connection" do
+		let(:connection) {subject.new(server, mask: true)}
 		
 		it "generates valid mask" do
-			frame = subject.send_text("Hello World")
-			expect(frame.mask).to be_a String
+			frame = connection.send_text("Hello World")
+			expect(frame.mask).to be(:kind_of?, String)
 			expect(frame.mask.bytesize).to be == 4
 		end
 	end
 	
-	context "with fragmented text frames" do
+	with "fragmented text frames" do
 		let(:text_frame) do
 			Protocol::WebSocket::TextFrame.new(false).tap{|frame| frame.pack("Hello ")}
 		end
@@ -61,7 +61,7 @@ RSpec.describe Protocol::WebSocket::Connection do
 			client.write_frame(ping_frame)
 			client.write_frame(continuation_frame)
 			
-			message = subject.read
+			message = connection.read
 			expect(message).to be == "Hello world!"
 			expect(message.encoding).to be == Encoding::UTF_8
 			
@@ -69,29 +69,29 @@ RSpec.describe Protocol::WebSocket::Connection do
 		end
 	end
 	
-	context "text messages" do
+	with "a text messages" do
 		it "can send and receive text frames" do
-			subject.write("Hello World".encode(Encoding::UTF_8))
+			connection.write("Hello World".encode(Encoding::UTF_8))
 			
-			expect(client.read_frame).to be_kind_of(Protocol::WebSocket::TextFrame)
+			expect(client.read_frame).to be(:kind_of?, Protocol::WebSocket::TextFrame)
 		end
 	end
 	
-	context "binary messages" do
+	with "a binary messages" do
 		it "can send and receive binary frames" do
-			subject.write("Hello World".encode(Encoding::BINARY))
+			connection.write("Hello World".encode(Encoding::BINARY))
 			
-			expect(client.read_frame).to be_kind_of(Protocol::WebSocket::BinaryFrame)
+			expect(client.read_frame).to be(:kind_of?, Protocol::WebSocket::BinaryFrame)
 		end
 	end
 	
-	context "message length" do
+	with "different message lengths" do
 		it "can handle a short message (<126)" do
 			thread = Thread.new do
 				client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 15)})
 			end
 			
-			message = subject.read
+			message = connection.read
 			expect(message.size).to be == 15
 			
 			thread.join
@@ -102,7 +102,7 @@ RSpec.describe Protocol::WebSocket::Connection do
 				client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 60_000)})
 			end
 			
-			message = subject.read
+			message = connection.read
 			expect(message.size).to be == 60_000
 			
 			thread.join
@@ -113,7 +113,7 @@ RSpec.describe Protocol::WebSocket::Connection do
 				client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 90_000)})
 			end
 			
-			message = subject.read
+			message = connection.read
 			expect(message.size).to be == 90_000
 			
 			thread.join

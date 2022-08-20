@@ -25,7 +25,7 @@ module Protocol
 	module WebSocket
 		module Extensions
 			def self.parse(headers)
-				return to_enum(:parse) unless block_given?
+				return to_enum(:parse, headers) unless block_given?
 				
 				headers.each do |header|
 					name, *arguments = header.split(/\s*;\s*/)

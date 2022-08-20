@@ -18,8 +18,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-RSpec.describe Protocol::WebSocket do
-	it "has a version number" do
-		expect(Protocol::WebSocket::VERSION).not_to be nil
+require 'protocol/websocket/framer'
+require 'socket'
+
+AWebSocketFrame = Sus::Shared("a websocket frame") do
+	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
+	
+	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
+	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
+	
+	it "can send frame over sockets" do
+		server.write_frame(frame)
+		
+		transmitted_frame = client.read_frame
+		
+		expect(transmitted_frame).to be == frame
 	end
 end

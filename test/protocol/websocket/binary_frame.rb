@@ -18,16 +18,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'covered/rspec'
+require 'a_websocket_frame'
+require 'protocol/websocket/binary_frame'
 
-RSpec.configure do |config|
-	# Enable flags like --only-failures and --next-failure
-	config.example_status_persistence_file_path = ".rspec_status"
-
-	# Disable RSpec exposing methods globally on `Module` and `main`
-	config.disable_monkey_patching!
-
-	config.expect_with :rspec do |c|
-		c.syntax = :expect
+describe Protocol::WebSocket::BinaryFrame do
+	with "with mask" do
+		let(:frame) {subject.new(mask: "abcd").pack("Hello World")}
+		
+		it_behaves_like AWebSocketFrame
+		
+		it "encodes binary representation" do
+			buffer = StringIO.new
+			
+			frame.write(buffer)
+			
+			expect(buffer.string).to be == "\x82\x8Babcd)\a\x0F\b\x0EB4\v\x13\x0E\a"
+		end
+	end
+	
+	with "without mask" do
+		let(:frame) {subject.new.pack("Hello World")}
+		
+		it_behaves_like AWebSocketFrame
+		
+		it "encodes binary representation" do
+			buffer = StringIO.new
+			
+			frame.write(buffer)
+			
+			expect(buffer.string).to be == "\x82\vHello World"
+		end
 	end
 end

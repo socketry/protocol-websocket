@@ -1,4 +1,4 @@
-# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2022, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,44 +18,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'frame_examples'
+require 'socket'
+require 'protocol/websocket/connection'
 
-require 'protocol/websocket/text_frame'
-
-RSpec.describe Protocol::WebSocket::TextFrame do
-	context "with mask" do
-		subject do
-			described_class.new(mask: "abcd").tap do |frame|
-				frame.pack("Hello World")
-			end
-		end
-		
-		it_should_behave_like Protocol::WebSocket::Frame
-		
-		it "encodes binary representation" do
-			buffer = StringIO.new
-			
-			subject.write(buffer)
-			
-			expect(buffer.string).to be == "\x81\x8Babcd)\a\x0F\b\x0EB4\v\x13\x0E\a"
-		end
-	end
+describe Protocol::WebSocket::Connection do
+	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
+	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
+	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
 	
-	context "without mask" do
-		subject do
-			described_class.new.tap do |frame|
-				frame.pack("Hello World")
+	let(:connection) {subject.new(server)}
+	
+	with "invalid unicode text message in 3 fragments" do
+		let(:payload1) {"\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5".b}
+		let(:payload2) {"\xf4\x90\x80\x80".b}
+		let(:payload3) {"\x65\x64\x69\x74\x65\x64".b}
+		
+		it "fails with protocol error" do
+			thread = Thread.new do
+				client.write_frame(Protocol::WebSocket::TextFrame.new(false, payload1))
+				client.write_frame(Protocol::WebSocket::ContinuationFrame.new(false, payload2))
+				client.write_frame(Protocol::WebSocket::ContinuationFrame.new(true, payload3))
 			end
-		end
-		
-		it_should_behave_like Protocol::WebSocket::Frame
-		
-		it "encodes binary representation" do
-			buffer = StringIO.new
 			
-			subject.write(buffer)
+			expect do
+				connection.read
+			end.to raise_exception(Protocol::WebSocket::ProtocolError)
 			
-			expect(buffer.string).to be == "\x81\vHello World"
+			thread.join
+		ensure
+			client.close
+			server.close
 		end
 	end
 end
