@@ -29,26 +29,25 @@ RSpec.describe Protocol::WebSocket::Connection do
 	subject {described_class.new(server)}
 	
 	context "case 6.4.1 invalid unicode text message in 3 fragments" do
-		let(:payload1) {'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5'.b}
-		let(:payload2) {'\xf4\x90\x80\x80'.b}
-		let(:payload3) {'\x65\x64\x69\x74\x65\x64'.b}
+		let(:payload1) {"\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5".b}
+		let(:payload2) {"\xf4\x90\x80\x80".b}
+		let(:payload3) {"\x65\x64\x69\x74\x65\x64".b}
 		
 		it "fails with protocol error" do
 			thread = Thread.new do
-				subject.read_frame
-				subject.read_frame
-				subject.read_frame
-			ensure
-				subject.close
+				client.write_frame(Protocol::WebSocket::TextFrame.new(false, payload1))
+				client.write_frame(Protocol::WebSocket::ContinuationFrame.new(false, payload2))
+				client.write_frame(Protocol::WebSocket::ContinuationFrame.new(true, payload3))
 			end
-
-			client.write_frame(Protocol::WebSocket::TextFrame.new(false, payload1)
-			client.write_frame(Protocol::WebSocket::ContinuationFrame.new(false, payload2)
-			client.write_frame(Protocol::WebSocket::ContinuationFrame.new(true, payload3)
-						
+			
+			expect do
+				subject.read
+			end.to raise_error(Protocol::WebSocket::ProtocolError)
+			
 			thread.join
 		ensure
 			client.close
 			server.close
 		end
+	end
 end

@@ -238,6 +238,10 @@ module Protocol
 						return frames.first.read_message(buffer)
 					end
 				end
+			rescue ProtocolError => error
+				send_close(error.code, error.message)
+				
+				raise
 			end
 			
 			def read_message(frames, **options)
