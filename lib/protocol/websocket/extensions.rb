@@ -18,6 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require_relative 'extension/compression'
+require_relative 'headers'
+
 module Protocol
 	module WebSocket
 		module Extensions
@@ -37,7 +40,9 @@ module Protocol
 			
 			class Client
 				def self.default
-					self.new([Extension::Compression, {}])
+					self.new([
+						[Extension::Compression, {}]
+					])
 				end
 				
 				def initialize(extensions = [])
@@ -45,25 +50,24 @@ module Protocol
 					@accepted = []
 				end
 				
+				attr :extensions
+				attr :accepted
+				
 				def named
-					@extensions.map do |klass, options|
-						[klass::NAME, klass]
+					@extensions.map do |extension|
+						[extension.first::NAME, extension]
 					end.to_h
 				end
 				
-				def offer(headers)
-					@extensions.each do |extension|
-						klass, options = extension
-						
-						if header = klass.offer(options)
-							headers.add(SEC_WEBSOCKET_EXTENSIONS, header)
+				def offer
+					@extensions.each do |extension, options|
+						if header = extension.offer(**options)
+							yield header
 						end
 					end
 				end
 				
-				def accept(headers, connection)
-					return unless headers = headers[SEC_WEBSOCKET_EXTENSIONS]
-					
+				def accept(headers)
 					named = self.named
 					
 					# Each response header should map to at least one extension.
@@ -71,7 +75,7 @@ module Protocol
 						if extension = named.delete(name)
 							klass, options = extension
 							
-							klass.accept(arguments, options)
+							klass.accept(arguments, **options)
 							
 							@accepted << [klass, options]
 						end
@@ -80,14 +84,16 @@ module Protocol
 				
 				def apply(connection)
 					@accepted.each do |(klass, options)|
-						klass.server(connection, options)
+						klass.server(connection, **options)
 					end
 				end
 			end
 			
 			class Server
 				def self.default
-					self.new([Extension::Compression, {}])
+					self.new([
+						[Extension::Compression, {}]
+					])
 				end
 				
 				def initialize(extensions)
@@ -95,11 +101,12 @@ module Protocol
 					@accepted = []
 				end
 				
+				attr :extensions
+				attr :accepted
+				
 				def named
 					@extensions.map do |extension|
-						klass = extension.first
-						
-						[klass::NAME, extension]
+						[extension.first::NAME, extension]
 					end.to_h
 				end
 				
@@ -107,19 +114,18 @@ module Protocol
 					extensions = []
 					
 					named = self.named
-					reserved = RESERVED
 					response = []
 					
-					# Each respons header should map to at least one extension.
+					# Each response header should map to at least one extension.
 					Extensions.parse(headers) do |name, arguments|
 						if extension = named[name]
 							klass, options = extension
 							
-							if header = klass.negotiate(arguments, options)
+							if header = klass.negotiate(arguments, **options)
 								# The extension is accepted and no further offers will be considered:
 								named.delete(name)
 								
-								response << header
+								yield header
 								
 								@accepted << [klass, options]
 							end
@@ -131,7 +137,7 @@ module Protocol
 				
 				def apply(connection)
 					@accepted.reverse_each do |(klass, options)|
-						klass.server(connection, options)
+						klass.server(connection, **options)
 					end
 				end
 			end

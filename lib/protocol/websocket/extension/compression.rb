@@ -28,6 +28,8 @@ module Protocol
 			module Compression
 				NAME = 'permessage-deflate'
 				
+				# Client offer to server, construct a list of requested compression parameters suitable for the `Sec-WebSocket-Extensions` header.
+				# @returns [Array(String)] a list of compression parameters suitable to send to the server.
 				def self.offer(client_window_bits: true, server_window_bits: true, client_no_context_takeover: false, server_no_context_takeover: false)
 					
 					header = [NAME]
@@ -48,6 +50,8 @@ module Protocol
 					case server_window_bits
 					when 8..15
 						header << "server_max_window_bits=#{server_window_bits}"
+					when true
+						# Default (unspecified) to the server maximum window bits.
 					else
 						raise ArgumentError, "Invalid remote maximum window bits!"
 					end
@@ -59,7 +63,10 @@ module Protocol
 					return header
 				end
 
-				def self.negotiate(arguments, options)
+				# Negotiate on the server a response to client based on the incoming client offer.
+				# @parameter options [Hash] a hash of options which are accepted by the server.
+				# @returns [Array(String)] a list of compression parameters suitable to send back to the client.
+				def self.negotiate(arguments, **options)
 					header = [NAME]
 					
 					arguments.each do |key, value|
@@ -79,9 +86,11 @@ module Protocol
 						end
 					end
 					
+					# The header which represents the final accepted/negotiated configuration.
 					return header
 				end
 				
+				# @parameter options [Hash] a hash of options which are accepted by the server.
 				def self.server(connection, **options)
 					connection.reserve!(Frame::RSV1)
 					
@@ -89,7 +98,10 @@ module Protocol
 					connection.writer = Deflate.server(connection.writer, **options)
 				end
 				
-				def self.client_accept(arguments, options)
+				# Accept on the client, the negotiated server response.
+				# @parameter options [Hash] a hash of options which are accepted by the client.
+				# @parameter arguments [Array(String)] a list of compression parameters as accepted/negotiated by the server.
+				def self.accept(arguments, **options)
 					arguments.each do |key, value|
 						case key
 						when "server_no_context_takeover"
@@ -106,6 +118,7 @@ module Protocol
 					end
 				end
 				
+				# @parameter options [Hash] a hash of options which are accepted by the client.
 				def self.client(connection, **options)
 					connection.reserve!(Frame::RSV1)
 					

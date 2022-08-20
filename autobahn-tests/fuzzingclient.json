@@ -7,6 +7,7 @@
       }
    ],
    "cases": ["*"],
+   "exclude-cases": ["6.*", "7.13.*"],
    "exclude-agent-cases": {
      "protocol-websocket": ["3.3", "7.7.*"]
    }
