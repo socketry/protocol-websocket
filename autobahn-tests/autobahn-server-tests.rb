@@ -16,7 +16,13 @@ result = JSON.parse(File.read("/tmp/autobahn-server/index.json"))["protocol-webs
 
 FileUtils.rm_r("/tmp/autobahn-server/")
 
-failed = result.select { |_, e| e["behavior"] != "OK" || e["behaviorClose"] != "OK" }
+def failed_state(name)
+	name != "OK" and name != "INFORMATIONAL"
+end
+
+failed = result.select do |_, outcome|
+	failed_state(outcome["behavior"]) || failed_state(outcome["behaviorClose"])
+end
 
 puts "#{result.count - failed.count} / #{result.count} tests OK"
 
