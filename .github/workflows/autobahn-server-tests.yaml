@@ -2,6 +2,9 @@ name: Autobahn Server Tests
 
 on: [push, pull_request]
 
+env:
+  CONSOLE_OUTPUT: XTerm
+
 jobs:
   test:
     runs-on: ${{matrix.os}}-latest
