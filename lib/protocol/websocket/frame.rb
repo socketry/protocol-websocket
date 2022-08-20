@@ -118,6 +118,8 @@ module Protocol
 					@payload = data
 					@length = length
 				end
+				
+				return self
 			end
 			
 			def unpack
