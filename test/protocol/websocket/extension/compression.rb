@@ -60,7 +60,13 @@ describe Protocol::WebSocket::Extension::Compression do
 			Async::WebSocket::Client.connect(endpoint, extensions: extensions) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
-								
+				
+				expect(client.writer.window_bits).to be == 9
+				expect(client.writer.context_takeover).to be == false
+				
+				expect(client.reader.window_bits).to be == 15
+				expect(client.reader.context_takeover).to be == false
+				
 				client.write("Hello World")
 				client.flush
 				expect(client.read).to be == "Hello World"

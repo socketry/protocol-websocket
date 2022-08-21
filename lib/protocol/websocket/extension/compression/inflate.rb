@@ -50,6 +50,9 @@ module Protocol
 						@context_takeover = context_takeover
 					end
 					
+					attr :window_bits
+					attr :context_takeover
+					
 					def read_message(frames, **options)
 						buffer = @parent.read_message(frames, **options)
 						

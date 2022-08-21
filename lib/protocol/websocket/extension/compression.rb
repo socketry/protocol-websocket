@@ -61,7 +61,7 @@ module Protocol
 						header << 'server_no_context_takeover'
 					end
 					
-					# Console.logger.info(self, "Offering compression options.", header: header)
+					# Console.logger.info(self, "Offering compression header.", header: header)
 					
 					return header
 				end
@@ -77,15 +77,17 @@ module Protocol
 					arguments.each do |key, value|
 						case key
 						when "server_no_context_takeover"
-							options[:server_no_context_takeover] = false
+							options[:server_no_context_takeover] = true
 							header << key
 						when "client_no_context_takeover"
-							options[:client_no_context_takeover] = false
+							options[:client_no_context_takeover] = true
 							header << key
 						when "server_max_window_bits"
-							options[:server_max_window_bits] = Integer(value || 15)
+							value = options[:server_max_window_bits] = Integer(value || 15)
+							header << "server_max_window_bits=#{value}"
 						when "client_max_window_bits"
-							options[:client_max_window_bits] = Integer(value || 15)
+							value = options[:client_max_window_bits] = Integer(value || 15)
+							header << "client_max_window_bits=#{value}"
 						else
 							raise ArgumentError, "Unknown option #{key}!"
 						end
@@ -94,7 +96,7 @@ module Protocol
 					# Console.logger.info(self, "Negotiating compression options.", header: header)
 					
 					# The header which represents the final accepted/negotiated configuration.
-					return header
+					return header, options
 				end
 				
 				# @parameter options [Hash] a hash of options which are accepted by the server.
@@ -116,9 +118,9 @@ module Protocol
 					arguments.each do |key, value|
 						case key
 						when "server_no_context_takeover"
-							options[:server_no_context_takeover] = false
+							options[:server_no_context_takeover] = true
 						when "client_no_context_takeover"
-							options[:client_no_context_takeover] = false
+							options[:client_no_context_takeover] = true
 						when "server_max_window_bits"
 							options[:server_max_window_bits] = Integer(value || 15)
 						when "client_max_window_bits"
@@ -127,6 +129,8 @@ module Protocol
 							raise ArgumentError, "Unknown option #{key}!"
 						end
 					end
+					
+					return options
 				end
 				
 				# @parameter options [Hash] a hash of options which are accepted by the client.

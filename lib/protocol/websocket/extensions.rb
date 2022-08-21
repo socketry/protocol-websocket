@@ -75,7 +75,7 @@ module Protocol
 						if extension = named.delete(name)
 							klass, options = extension
 							
-							klass.accept(arguments, **options)
+							options = klass.accept(arguments, **options)
 							
 							@accepted << [klass, options]
 						end
@@ -84,7 +84,7 @@ module Protocol
 				
 				def apply(connection)
 					@accepted.each do |(klass, options)|
-						klass.server(connection, **options)
+						klass.client(connection, **options)
 					end
 				end
 			end
@@ -121,7 +121,9 @@ module Protocol
 						if extension = named[name]
 							klass, options = extension
 							
-							if header = klass.negotiate(arguments, **options)
+							if result = klass.negotiate(arguments, **options)
+								header, options = result
+								
 								# The extension is accepted and no further offers will be considered:
 								named.delete(name)
 								

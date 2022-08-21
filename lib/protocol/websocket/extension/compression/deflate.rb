@@ -25,18 +25,20 @@ module Protocol
 		module Extension
 			module Compression
 				class Deflate
-					def self.client(parent, client_max_window_bits: 15, client_no_context_takeover: false, **options)
+					# We are writing to the server, so use the server's specifications.
+					def self.client(parent, server_max_window_bits: 15, server_no_context_takeover: false, **options)
 						self.new(parent,
-							window_bits: client_max_window_bits,
-							context_takeover: !client_no_context_takeover,
+							window_bits: server_max_window_bits,
+							context_takeover: !server_no_context_takeover,
 							**options
 						)
 					end
 					
-					def self.server(parent, server_max_window_bits: 15, server_no_context_takeover: false, **options)
+					# We are writing to the client, so use the client's specificiations.
+					def self.server(parent, client_max_window_bits: 15, client_no_context_takeover: false, **options)
 						self.new(parent,
-							window_bits: server_max_window_bits,
-							context_takeover: !server_no_context_takeover,
+							window_bits: client_max_window_bits,
+							context_takeover: !client_no_context_takeover,
 							**options
 						)
 					end
@@ -53,6 +55,9 @@ module Protocol
 						@window_bits = window_bits
 						@context_takeover = context_takeover
 					end
+					
+					attr :window_bits
+					attr :context_takeover
 					
 					def text_message(buffer, compress: true, **options)
 						buffer = self.deflate(buffer)
