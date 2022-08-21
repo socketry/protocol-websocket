@@ -21,7 +21,7 @@
 require 'socket'
 
 AWebSocketFrame = Sus::Shared("a websocket frame") do
-	require_library 'protocol/websocket/framer'
+	require 'protocol/websocket/framer'
 	
 	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 	

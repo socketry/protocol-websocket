@@ -69,7 +69,6 @@ module Protocol
 					private
 					
 					def inflate(buffer)
-						Console.logger.info(self, "Inflating #{buffer.bytesize} bytes")
 						inflate = @inflate || Zlib::Inflate.new(-@window_bits)
 						
 						if @context_takeover

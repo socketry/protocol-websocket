@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_library 'protocol/websocket'
+require 'protocol/websocket'
 
 describe Protocol::WebSocket do
 	it "has a version number" do

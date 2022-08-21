@@ -77,7 +77,6 @@ module Protocol
 					private
 					
 					def deflate(buffer)
-						Console.logger.info(self, "Deflating #{buffer.size} bytes")
 						deflate = @deflate || Zlib::Deflate.new(@level, -@window_bits, @memory_level, @strategy)
 						
 						if @context_takeover

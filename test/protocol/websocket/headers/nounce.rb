@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_library 'protocol/websocket/headers'
+require 'protocol/websocket/headers'
 
 describe Protocol::WebSocket::Headers::Nounce do
 	with '#generate_key' do

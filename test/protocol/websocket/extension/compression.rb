@@ -1,4 +1,4 @@
-# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2022, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,26 +18,35 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'socket'
-
-require_library 'protocol/websocket/connection'
-require_library 'protocol/websocket/extensions'
-require_library 'protocol/websocket/extension/compression'
+require 'server_context'
 
 describe Protocol::WebSocket::Extension::Compression do
-	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
-		
-	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
-	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
+	include ServerContext
 	
-	let(:connection) {Protocol::WebSocket::Connection.new(server)}
+	with 'no extensions' do
+		it "can send and receive a text message" do
+			Async::WebSocket::Client.connect(endpoint, extensions: nil) do |client|
+				expect(client.writer).not.to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
+				expect(client.reader).not.to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
+				
+				client.write("Hello World")
+				client.flush
+				
+				expect(client.read).to be == "Hello World"
+			end
+		end
+	end
 	
-	it "can send compressed message" do
-		connection.write("Hello World!")
-		
-		frame = client.read_frame
-		client.write_frame(frame)
-		
-		expect(connection.read).to be == "Hello World!"
+	with 'default extensions' do
+		it "can send and receive a text message using compression" do
+			Async::WebSocket::Client.connect(endpoint) do |client|
+				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
+				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
+				client.write("Hello World")
+				client.flush
+				
+				expect(client.read).to be == "Hello World"
+			end
+		end
 	end
 end

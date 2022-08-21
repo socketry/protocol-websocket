@@ -18,8 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_fixture 'a_websocket_frame'
-require_library 'protocol/websocket/text_frame'
+require 'a_websocket_frame'
+require 'protocol/websocket/text_frame'
 
 describe Protocol::WebSocket::TextFrame do
 	with "with mask" do

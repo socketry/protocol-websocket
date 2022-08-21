@@ -20,10 +20,14 @@
 
 require_relative 'reactor_context'
 
+require 'protocol/http/middleware/builder'
+
 require 'async/http/server'
 require 'async/http/client'
 require 'async/http/endpoint'
 require 'async/io/shared_endpoint'
+require 'async/websocket/adapters/http'
+require 'async/websocket/client'
 
 module ServerContext
 	include ReactorContext
@@ -40,16 +44,33 @@ module ServerContext
 		1
 	end
 	
-	def app
-		->(env){[200, {}, ['Hello World!']]}
+	# TODO: This should probably be part of the library long-term
+	class RawConnection < Async::WebSocket::Connection
+		def parse(buffer)
+			buffer
+		end
+
+		def dump(buffer)
+			buffer
+		end
 	end
 	
-	def middleware
-		Protocol::Rack::Adapter.new(app)
+	class EchoServer < ::Protocol::HTTP::Middleware
+		def call(request)
+			Async::WebSocket::Adapters::HTTP.open(request, handler: RawConnection) do |c|
+				while message = c.read
+					c.write(message)
+				end
+			end or super
+		end
+	end
+	
+	def app
+		EchoServer.new(nil)
 	end
 	
 	def server
-		Async::HTTP::Server.new(middleware, @bound_endpoint)
+		Async::HTTP::Server.new(app, @bound_endpoint)
 	end
 	
 	def client
