@@ -1,4 +1,4 @@
-require 'protocol/websocket/extensions'
+require_library 'protocol/websocket/extensions'
 
 describe Protocol::WebSocket::Extensions do
 	it "can parse headers" do

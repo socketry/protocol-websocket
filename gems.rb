@@ -16,6 +16,8 @@ group :test do
 	gem "bake-test"
 	gem "bake-test-external"
 	
-	gem "async-websocket"
+	# gem "async-websocket"
 	gem "falcon"
 end
+
+gem "async-websocket", path: "../async-websocket"

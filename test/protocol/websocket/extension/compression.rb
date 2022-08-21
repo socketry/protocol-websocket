@@ -19,9 +19,9 @@
 # THE SOFTWARE.
 
 require 'socket'
-require 'protocol/websocket/connection'
-require 'protocol/websocket/extensions'
-require 'protocol/websocket/extension/compression'
+require_library 'protocol/websocket/connection'
+require_library 'protocol/websocket/extensions'
+require_library 'protocol/websocket/extension/compression'
 
 describe Protocol::WebSocket::Extension::Compression do
 	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}

@@ -18,8 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'a_websocket_frame'
-require 'protocol/websocket/text_frame'
+require_fixture 'a_websocket_frame'
+require_library 'protocol/websocket/text_frame'
 
 describe Protocol::WebSocket::TextFrame do
 	with "with mask" do
@@ -48,8 +48,5 @@ describe Protocol::WebSocket::TextFrame do
 			
 			expect(buffer.string).to be == "\x81\vHello World"
 		end
-	end
-	
-	with "framer" do
 	end
 end

@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 require 'socket'
-require 'protocol/websocket/connection'
+require_library 'protocol/websocket/connection'
 
 describe Protocol::WebSocket::Connection do
 	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}

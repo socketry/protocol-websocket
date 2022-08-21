@@ -24,5 +24,5 @@ Gem::Specification.new do |spec|
 	
 	spec.add_development_dependency "bundler"
 	spec.add_development_dependency "covered"
-	spec.add_development_dependency "rspec", "~> 3.0"
+	spec.add_development_dependency "sus", "~> 0.9.1"
 end

@@ -18,8 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'a_websocket_frame'
-require 'protocol/websocket/binary_frame'
+require_fixture 'a_websocket_frame'
+require_library 'protocol/websocket/binary_frame'
 
 describe Protocol::WebSocket::BinaryFrame do
 	with "with mask" do
