@@ -31,7 +31,6 @@ module Protocol
 				# Client offer to server, construct a list of requested compression parameters suitable for the `Sec-WebSocket-Extensions` header.
 				# @returns [Array(String)] a list of compression parameters suitable to send to the server.
 				def self.offer(client_max_window_bits: true, server_max_window_bits: true, client_no_context_takeover: false, server_no_context_takeover: false)
-					# Console.logger.info(self, "Offering compression options.", client_max_window_bits: client_max_window_bits, server_max_window_bits: server_max_window_bits, client_no_context_takeover: client_no_context_takeover, server_no_context_takeover: server_no_context_takeover)
 					
 					header = [NAME]
 					
@@ -61,8 +60,6 @@ module Protocol
 						header << 'server_no_context_takeover'
 					end
 					
-					# Console.logger.info(self, "Offering compression header.", header: header)
-					
 					return header
 				end
 
@@ -70,8 +67,6 @@ module Protocol
 				# @parameter options [Hash] a hash of options which are accepted by the server.
 				# @returns [Array(String)] a list of compression parameters suitable to send back to the client.
 				def self.negotiate(arguments, **options)
-					# Console.logger.info(self, "Negotiating compression options.", arguments: arguments, options: options)
-					
 					header = [NAME]
 					
 					arguments.each do |key, value|
@@ -93,16 +88,12 @@ module Protocol
 						end
 					end
 					
-					# Console.logger.info(self, "Negotiating compression options.", header: header)
-					
 					# The header which represents the final accepted/negotiated configuration.
 					return header, options
 				end
 				
 				# @parameter options [Hash] a hash of options which are accepted by the server.
 				def self.server(connection, **options)
-					# Console.logger.info(self, "Adding server compression.", options)
-					
 					connection.reserve!(Frame::RSV1)
 					
 					connection.reader = Inflate.server(connection.reader, **options)
@@ -113,8 +104,6 @@ module Protocol
 				# @parameter options [Hash] a hash of options which are accepted by the client.
 				# @parameter arguments [Array(String)] a list of compression parameters as accepted/negotiated by the server.
 				def self.accept(arguments, **options)
-					# Console.logger.info(self, "Accepting compression options.", arguments: arguments, options: options)
-					
 					arguments.each do |key, value|
 						case key
 						when "server_no_context_takeover"
@@ -135,8 +124,6 @@ module Protocol
 				
 				# @parameter options [Hash] a hash of options which are accepted by the client.
 				def self.client(connection, **options)
-					# Console.logger.info(self, "Adding client compression.", options)
-					
 					connection.reserve!(Frame::RSV1)
 					
 					connection.reader = Inflate.client(connection.reader, **options)

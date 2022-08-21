@@ -55,18 +55,27 @@ module ServerContext
 		end
 	end
 	
-	class EchoServer < ::Protocol::HTTP::Middleware
+	class WebSocketServer < ::Protocol::HTTP::Middleware
+		def initialize(handler)
+			@handler = handler
+			super(nil)
+		end
+		
 		def call(request)
-			Async::WebSocket::Adapters::HTTP.open(request, handler: RawConnection) do |c|
-				while message = c.read
-					c.write(message)
-				end
+			Async::WebSocket::Adapters::HTTP.open(request, handler: RawConnection) do |connection|
+				@handler.websocket_server(request, connection)
 			end or super
 		end
 	end
 	
+	def websocket_server(request, connection)
+		while message = connection.read
+			connection.write(message)
+		end
+	end
+	
 	def app
-		EchoServer.new(nil)
+		WebSocketServer.new(self)
 	end
 	
 	def server

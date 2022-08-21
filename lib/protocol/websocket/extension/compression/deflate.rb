@@ -25,20 +25,23 @@ module Protocol
 		module Extension
 			module Compression
 				class Deflate
-					# We are writing to the server, so use the server's specifications.
-					def self.client(parent, server_max_window_bits: 15, server_no_context_takeover: false, **options)
+					# The most common implementation of zlib does not support a window size <= 8 bits.
+					MINIMUM_WINDOW_BITS = 9
+					
+					# Client writing to server.
+					def self.client(parent, client_max_window_bits: 15, client_no_context_takeover: false, **options)
 						self.new(parent,
-							window_bits: server_max_window_bits,
-							context_takeover: !server_no_context_takeover,
+							window_bits: client_max_window_bits,
+							context_takeover: !client_no_context_takeover,
 							**options
 						)
 					end
 					
-					# We are writing to the client, so use the client's specificiations.
-					def self.server(parent, client_max_window_bits: 15, client_no_context_takeover: false, **options)
+					# Server writing to client.
+					def self.server(parent, server_max_window_bits: 15, server_no_context_takeover: false, **options)
 						self.new(parent,
-							window_bits: client_max_window_bits,
-							context_takeover: !client_no_context_takeover,
+							window_bits: server_max_window_bits,
+							context_takeover: !server_no_context_takeover,
 							**options
 						)
 					end
@@ -48,12 +51,20 @@ module Protocol
 						
 						@deflate = nil
 						
-						@compression_level = level
+						@level = level
 						@memory_level = memory_level
 						@strategy = strategy
 						
+						if window_bits < MINIMUM_WINDOW_BITS
+							window_bits = MINIMUM_WINDOW_BITS
+						end
+						
 						@window_bits = window_bits
 						@context_takeover = context_takeover
+					end
+					
+					def inspect
+						"#<#{self.class} window_bits=#{@window_bits} context_takeover=#{@context_takeover}>"
 					end
 					
 					attr :window_bits
