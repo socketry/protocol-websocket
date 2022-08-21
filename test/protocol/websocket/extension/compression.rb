@@ -42,11 +42,32 @@ describe Protocol::WebSocket::Extension::Compression do
 			Async::WebSocket::Client.connect(endpoint) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
+				
 				client.write("Hello World")
 				client.flush
 				
 				expect(client.read).to be == "Hello World"
 			end
+		end
+	end
+	
+	with 'permessage-deflate; client_no_context_takeover; client_max_window_bits; server_no_context_takeover; server_max_window_bits=9' do
+		let(:extensions) {::Protocol::WebSocket::Extensions::Client.new([
+			[Protocol::WebSocket::Extension::Compression, {client_no_context_takeover: true, client_max_window_bits: true, server_no_context_takeover: true, server_max_window_bits: 9}]
+		])}
+		
+		it "can send and receive a text message using compression" do
+			Async::WebSocket::Client.connect(endpoint, extensions: extensions) do |client|
+				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
+				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
+								
+				client.write("Hello World")
+				client.flush
+				
+				expect(client.read).to be == "Hello World"
+			end
+		rescue => error
+			Console.logger.info(self, error)
 		end
 	end
 end

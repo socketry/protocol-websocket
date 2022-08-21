@@ -25,17 +25,17 @@ module Protocol
 		module Extension
 			module Compression
 				class Deflate
-					def self.client(parent, client_window_bits: 15, client_no_context_takeover: false, **options)
+					def self.client(parent, client_max_window_bits: 15, client_no_context_takeover: false, **options)
 						self.new(parent,
-							window_bits: client_window_bits,
+							window_bits: client_max_window_bits,
 							context_takeover: !client_no_context_takeover,
 							**options
 						)
 					end
 					
-					def self.server(parent, server_window_bits: 15, server_no_context_takeover: false, **options)
+					def self.server(parent, server_max_window_bits: 15, server_no_context_takeover: false, **options)
 						self.new(parent,
-							window_bits: server_window_bits,
+							window_bits: server_max_window_bits,
 							context_takeover: !server_no_context_takeover,
 							**options
 						)
@@ -83,7 +83,7 @@ module Protocol
 							@deflate = deflate
 						end
 						
-						return @deflate.deflate(buffer, Zlib::SYNC_FLUSH)[0...-4]
+						return deflate.deflate(buffer, Zlib::SYNC_FLUSH)[0...-4]
 					end
 				end
 			end
