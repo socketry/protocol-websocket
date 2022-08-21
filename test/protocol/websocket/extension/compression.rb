@@ -63,11 +63,8 @@ describe Protocol::WebSocket::Extension::Compression do
 								
 				client.write("Hello World")
 				client.flush
-				
 				expect(client.read).to be == "Hello World"
 			end
-		rescue => error
-			Console.logger.info(self, error)
 		end
 	end
 end

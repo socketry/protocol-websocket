@@ -67,7 +67,7 @@ module Protocol
 					def binary_message(buffer, compress: false, **options)
 						message = self.deflate(buffer)
 						
-						frame = parent.binary_message(buffer, **options)
+						frame = @parent.binary_message(buffer, **options)
 						
 						frame.flags |= Frame::RSV1
 						
