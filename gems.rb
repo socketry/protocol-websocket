@@ -17,5 +17,6 @@ group :test do
 	gem "bake-test-external"
 	
 	gem "async-websocket"
+	gem "async-http"
 	gem "falcon"
 end

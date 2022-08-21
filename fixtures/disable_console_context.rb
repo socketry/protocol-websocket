@@ -18,26 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'socket'
-
-require_library 'protocol/websocket/connection'
-require_library 'protocol/websocket/extensions'
-require_library 'protocol/websocket/extension/compression'
-
-describe Protocol::WebSocket::Extension::Compression do
-	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
+module DisableConsoleContext
+	def around
+		level = Console.logger.level
+		Console.logger.off!
 		
-	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}
-	let(:server) {Protocol::WebSocket::Framer.new(sockets.last)}
-	
-	let(:connection) {Protocol::WebSocket::Connection.new(server)}
-	
-	it "can send compressed message" do
-		connection.write("Hello World!")
-		
-		frame = client.read_frame
-		client.write_frame(frame)
-		
-		expect(connection.read).to be == "Hello World!"
+		begin
+			super
+		ensure
+			Console.logger.level = level
+		end
 	end
 end

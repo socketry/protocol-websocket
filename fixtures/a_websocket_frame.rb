@@ -18,10 +18,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'protocol/websocket/framer'
 require 'socket'
 
 AWebSocketFrame = Sus::Shared("a websocket frame") do
+	require_library 'protocol/websocket/framer'
+	
 	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 	
 	let(:client) {Protocol::WebSocket::Framer.new(sockets.first)}

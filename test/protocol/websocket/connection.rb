@@ -119,4 +119,27 @@ describe Protocol::WebSocket::Connection do
 			thread.join
 		end
 	end
+	
+	with "invalid unicode text message in 3 fragments" do
+		let(:payload1) {"\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5".b}
+		let(:payload2) {"\xf4\x90\x80\x80".b}
+		let(:payload3) {"\x65\x64\x69\x74\x65\x64".b}
+		
+		it "fails with protocol error" do
+			thread = Thread.new do
+				client.write_frame(Protocol::WebSocket::TextFrame.new(false, payload1))
+				client.write_frame(Protocol::WebSocket::ContinuationFrame.new(false, payload2))
+				client.write_frame(Protocol::WebSocket::ContinuationFrame.new(true, payload3))
+			end
+			
+			expect do
+				connection.read
+			end.to raise_exception(Protocol::WebSocket::ProtocolError)
+			
+			thread.join
+		ensure
+			client.close
+			server.close
+		end
+	end
 end
