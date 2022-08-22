@@ -67,20 +67,20 @@ module Protocol
 					attr :window_bits
 					attr :context_takeover
 					
-					def text_message(buffer, compress: true, **options)
+					def pack_text_frame(buffer, compress: true, **options)
 						buffer = self.deflate(buffer)
 						
-						frame = @parent.text_message(buffer, **options)
+						frame = @parent.pack_text_frame(buffer, **options)
 						
 						frame.flags |= Frame::RSV1
 						
 						return frame
 					end
 					
-					def binary_message(buffer, compress: false, **options)
-						message = self.deflate(buffer)
+					def pack_binary_frame(buffer, compress: false, **options)
+						buffer = self.deflate(buffer)
 						
-						frame = @parent.binary_message(buffer, **options)
+						frame = @parent.pack_binary_frame(buffer, **options)
 						
 						frame.flags |= Frame::RSV1
 						

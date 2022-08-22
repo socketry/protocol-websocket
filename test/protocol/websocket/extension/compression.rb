@@ -29,7 +29,7 @@ describe Protocol::WebSocket::Extension::Compression do
 				expect(client.writer).not.to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).not.to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
-				client.write("Hello World")
+				client.send_text("Hello World")
 				client.flush
 				
 				expect(client.read).to be == "Hello World"
@@ -43,7 +43,19 @@ describe Protocol::WebSocket::Extension::Compression do
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
-				client.write("Hello World")
+				client.send_text("Hello World")
+				client.flush
+				
+				expect(client.read).to be == "Hello World"
+			end
+		end
+		
+		it "can send and receive a binary message using compression" do
+			Async::WebSocket::Client.connect(endpoint) do |client|
+				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
+				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
+				
+				client.send_binary("Hello World")
 				client.flush
 				
 				expect(client.read).to be == "Hello World"
@@ -92,7 +104,7 @@ describe Protocol::WebSocket::Extension::Compression do
 				expect(client.reader.window_bits).to be == 9
 				expect(client.reader.context_takeover).to be == true
 				
-				client.write("Hello World")
+				client.send_text("Hello World")
 				client.flush
 				expect(client.read).to be == "Hello World"
 			end
@@ -150,7 +162,7 @@ describe Protocol::WebSocket::Extension::Compression do
 				expect(client.reader.window_bits).to be == 13
 				expect(client.reader.context_takeover).to be == false
 				
-				client.write("Hello World")
+				client.send_text("Hello World")
 				client.flush
 				expect(client.read).to be == "Hello World"
 			end

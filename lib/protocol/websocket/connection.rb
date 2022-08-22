@@ -131,39 +131,7 @@ module Protocol
 					raise ProtocolError, "Received unexpected continuation!"
 				end
 			end
-			
-			def text_message(buffer, **options)
-				frame = TextFrame.new(mask: @mask)
-				frame.pack(buffer)
-				
-				return frame
-			end
-			
-			def send_text(buffer, **options)
-				write_frame(@writer.text_message(buffer, **options))
-			end
-			
-			def binary_message(buffer, **options)
-				frame = BinaryFrame.new(mask: @mask)
-				frame.pack(buffer)
-				
-				return frame
-			end
-			
-			def send_binary(buffer, **options)
-				write_frame(@writer.binary_message(buffer, **options))
-			end
-			
-			def send_close(code = Error::NO_ERROR, reason = "")
-				frame = CloseFrame.new(mask: @mask)
-				frame.pack(code, reason)
-				
-				self.write_frame(frame)
-				self.flush
-				
-				@state = :closed
-			end
-			
+					
 			def receive_close(frame)
 				@state = :closed
 				
@@ -209,23 +177,59 @@ module Protocol
 				warn "Unhandled frame #{frame.inspect}"
 			end
 			
-			def write_message(buffer, **options)
-				# Text: The "Payload data" is text data encoded as UTF-8
-				if buffer.encoding == Encoding::UTF_8
-					send_text(buffer, **options)
-				else
-					send_binary(buffer, **options)
-				end
-			end
-			
-			# @param buffer [String] a unicode or binary string.
-			def write(buffer, **options)
-				# https://tools.ietf.org/html/rfc6455#section-5.6
+			def pack_text_frame(buffer, **options)
+				frame = TextFrame.new(mask: @mask)
+				frame.pack(buffer)
 				
-				self.write_message(buffer, **options)
+				return frame
 			end
 			
-			# @return [String] a unicode or binary string.
+			def send_text(buffer, **options)
+				write_frame(@writer.pack_text_frame(buffer, **options))
+			end
+			
+			def pack_binary_frame(buffer, **options)
+				frame = BinaryFrame.new(mask: @mask)
+				frame.pack(buffer)
+				
+				return frame
+			end
+			
+			def send_binary(buffer, **options)
+				write_frame(@writer.pack_binary_frame(buffer, **options))
+			end
+			
+			def send_close(code = Error::NO_ERROR, reason = "")
+				frame = CloseFrame.new(mask: @mask)
+				frame.pack(code, reason)
+				
+				self.write_frame(frame)
+				self.flush
+				
+				@state = :closed
+			end
+			
+			# Write a message to the connection.
+			# @parameter message [Message] The message to send.
+			def write(message, **options)
+				if message.is_a?(String)
+					if message.encoding == Encoding::UTF_8
+						return send_text(message, **options)
+					else
+						return send_binary(message, **options)
+					end
+				end
+				
+				message.send(self, **options)
+			end
+			
+			# The default implementation for reading a message buffer.
+			def unpack_frames(frames)
+				frames.map(&:unpack).join("")
+			end
+			
+			# Read a message from the connection.
+			# @returns message [Message] The received message.
 			def read(**options)
 				@framer.flush
 				
@@ -234,7 +238,7 @@ module Protocol
 						frames = @frames
 						@frames = []
 						
-						buffer = @reader.read_message(frames, **options)
+						buffer = @reader.unpack_frames(frames, **options)
 						return frames.first.read_message(buffer)
 					end
 				end
@@ -242,10 +246,6 @@ module Protocol
 				send_close(error.code, error.message)
 				
 				raise
-			end
-			
-			def read_message(frames, **options)
-				frames.map(&:unpack).join("")
 			end
 		end
 	end

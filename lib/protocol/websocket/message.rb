@@ -1,4 +1,4 @@
-# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2022, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -19,23 +19,42 @@
 # THE SOFTWARE.
 
 require_relative 'frame'
-require_relative 'message'
 
 module Protocol
 	module WebSocket
-		class BinaryFrame < Frame
-			OPCODE = 0x2
-			
-			def data?
-				true
+		class Message
+			def initialize(buffer)
+				@buffer = buffer
 			end
 			
-			def read_message(buffer)
-				return BinaryMessage.new(buffer)
+			attr :buffer
+			
+			def size
+				@buffer.bytesize
 			end
 			
-			def apply(connection)
-				connection.receive_binary(self)
+			def == other
+				@buffer == other
+			end
+			
+			def to_str
+				@buffer
+			end
+			
+			def encoding
+				@buffer.encoding
+			end
+		end
+		
+		class TextMessage < Message
+			def send(connection, **options)
+				connection.send_text(@buffer, **options)
+			end
+		end
+		
+		class BinaryMessage < Message
+			def send(connection, **options)
+				connection.send_binary(@buffer, **options)
 			end
 		end
 	end

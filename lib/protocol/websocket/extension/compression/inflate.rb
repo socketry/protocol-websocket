@@ -59,8 +59,8 @@ module Protocol
 					attr :window_bits
 					attr :context_takeover
 					
-					def read_message(frames, **options)
-						buffer = @parent.read_message(frames, **options)
+					def unpack_frames(frames, **options)
+						buffer = @parent.unpack_frames(frames, **options)
 						
 						frame = frames.first
 						

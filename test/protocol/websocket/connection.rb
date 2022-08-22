@@ -71,7 +71,7 @@ describe Protocol::WebSocket::Connection do
 	
 	with "a text messages" do
 		it "can send and receive text frames" do
-			connection.write("Hello World".encode(Encoding::UTF_8))
+			connection.send_text("Hello World".encode(Encoding::UTF_8))
 			
 			expect(client.read_frame).to be(:kind_of?, Protocol::WebSocket::TextFrame)
 		end
@@ -79,7 +79,7 @@ describe Protocol::WebSocket::Connection do
 	
 	with "a binary messages" do
 		it "can send and receive binary frames" do
-			connection.write("Hello World".encode(Encoding::BINARY))
+			connection.send_binary("Hello World")
 			
 			expect(client.read_frame).to be(:kind_of?, Protocol::WebSocket::BinaryFrame)
 		end

@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require_relative 'frame'
+require_relative 'message'
 
 module Protocol
 	module WebSocket
@@ -39,7 +40,7 @@ module Protocol
 					raise ProtocolError, "invalid UTF-8 in text frame!"
 				end
 				
-				buffer
+				return TextMessage.new(buffer)
 			end
 			
 			# Apply this frame to the specified connection.

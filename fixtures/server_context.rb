@@ -44,17 +44,6 @@ module ServerContext
 		1
 	end
 	
-	# TODO: This should probably be part of the library long-term
-	class RawConnection < Async::WebSocket::Connection
-		def parse(buffer)
-			buffer
-		end
-
-		def dump(buffer)
-			buffer
-		end
-	end
-	
 	class WebSocketServer < ::Protocol::HTTP::Middleware
 		def initialize(handler)
 			@handler = handler
@@ -62,7 +51,7 @@ module ServerContext
 		end
 		
 		def call(request)
-			Async::WebSocket::Adapters::HTTP.open(request, handler: RawConnection) do |connection|
+			Async::WebSocket::Adapters::HTTP.open(request) do |connection|
 				@handler.websocket_server(request, connection)
 			end or super
 		end
@@ -70,7 +59,7 @@ module ServerContext
 	
 	def websocket_server(request, connection)
 		while message = connection.read
-			connection.write(message)
+			message.send(connection)
 		end
 	end
 	
