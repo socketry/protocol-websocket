@@ -212,6 +212,7 @@ module Protocol
 			# Write a message to the connection.
 			# @parameter message [Message] The message to send.
 			def write(message, **options)
+				# This is a compatibility shim for the previous implementation. We may want to eventually deprecate this use case... or maybe it's convenient enough to leave it around.
 				if message.is_a?(String)
 					if message.encoding == Encoding::UTF_8
 						return send_text(message, **options)

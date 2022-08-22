@@ -18,44 +18,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'frame'
+require 'json'
+
+require_relative 'message'
 
 module Protocol
 	module WebSocket
-		class Message
-			def initialize(buffer)
-				@buffer = buffer
+		class JSONMessage < TextMessage
+			def self.wrap(message)
+				if message.is_a?(TextMessage)
+					self.new(message.buffer)
+				end
 			end
 			
-			attr :buffer
-			
-			def size
-				@buffer.bytesize
+			def self.generate(object)
+				self.new(JSON.generate(object))
 			end
 			
-			# This can be helpful for writing tests.
-			def == other
-				@buffer == other.to_str
+			def parse(symbolize_names: true, **options)
+				JSON.parse(@buffer, symbolize_names: symbolize_names, **options)
 			end
 			
-			def to_str
-				@buffer
-			end
-			
-			def encoding
-				@buffer.encoding
-			end
-		end
-		
-		class TextMessage < Message
-			def send(connection, **options)
-				connection.send_text(@buffer, **options)
-			end
-		end
-		
-		class BinaryMessage < Message
-			def send(connection, **options)
-				connection.send_binary(@buffer, **options)
+			def to_h
+				parse.to_h
 			end
 		end
 	end
