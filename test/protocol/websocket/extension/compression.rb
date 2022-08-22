@@ -133,7 +133,7 @@ describe Protocol::WebSocket::Extension::Compression do
 			expect(server.writer.window_bits).to be == 13
 			expect(server.writer.context_takeover).to be == false
 			
-			expect(server.reader.window_bits).to be == 8
+			expect(server.reader.window_bits).to be == 9
 			expect(server.reader.context_takeover).to be == true
 			
 			super
@@ -144,7 +144,7 @@ describe Protocol::WebSocket::Extension::Compression do
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
-				expect(client.writer.window_bits).to be >= 8
+				expect(client.writer.window_bits).to be == 9
 				expect(client.writer.context_takeover).to be == true
 				
 				expect(client.reader.window_bits).to be == 13

@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'zlib'
+require_relative 'compression/constants'
 require_relative 'compression/inflate'
 require_relative 'compression/deflate'
 
@@ -26,8 +26,6 @@ module Protocol
 	module WebSocket
 		module Extension
 			module Compression
-				NAME = 'permessage-deflate'
-				
 				# Client offer to server, construct a list of requested compression parameters suitable for the `Sec-WebSocket-Extensions` header.
 				# @returns [Array(String)] a list of compression parameters suitable to send to the server.
 				def self.offer(client_max_window_bits: true, server_max_window_bits: true, client_no_context_takeover: false, server_no_context_takeover: false)
@@ -78,10 +76,14 @@ module Protocol
 							options[:client_no_context_takeover] = true
 							header << key
 						when "server_max_window_bits"
-							value = options[:server_max_window_bits] = Integer(value || 15)
+							value = Integer(value || 15)
+							value = MINIMUM_WINDOW_BITS if value < MINIMUM_WINDOW_BITS
+							options[:server_max_window_bits] = value
 							header << "server_max_window_bits=#{value}"
 						when "client_max_window_bits"
-							value = options[:client_max_window_bits] = Integer(value || 15)
+							value = Integer(value || 15)
+							value = MINIMUM_WINDOW_BITS if value < MINIMUM_WINDOW_BITS
+							options[:client_max_window_bits] = value
 							header << "client_max_window_bits=#{value}"
 						else
 							raise ArgumentError, "Unknown option #{key}!"

@@ -18,16 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'zlib'
+require_relative 'constants'
 
 module Protocol
 	module WebSocket
 		module Extension
 			module Compression
 				class Deflate
-					# The most common implementation of zlib does not support a window size <= 8 bits.
-					MINIMUM_WINDOW_BITS = 9
-					
 					# Client writing to server.
 					def self.client(parent, client_max_window_bits: 15, client_no_context_takeover: false, **options)
 						self.new(parent,

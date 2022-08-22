@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'zlib'
+require_relative 'constants'
 
 module Protocol
 	module WebSocket
@@ -47,6 +47,10 @@ module Protocol
 						@parent = parent
 						
 						@inflate = nil
+						
+						if window_bits < MINIMUM_WINDOW_BITS
+							window_bits = MINIMUM_WINDOW_BITS
+						end
 						
 						@window_bits = window_bits
 						@context_takeover = context_takeover
