@@ -7,4 +7,10 @@ describe Protocol::WebSocket::JSONMessage do
 	it "can round-trip basic object" do
 		expect(message.parse).to be == object
 	end
+	
+	with '#to_h' do
+		it 'can be converted to a hash' do
+			expect(message.to_h).to be == object
+		end
+	end
 end

@@ -22,6 +22,16 @@ require 'a_websocket_frame'
 require 'protocol/websocket/text_frame'
 
 describe Protocol::WebSocket::TextFrame do
+	let(:frame) {subject.new}
+	
+	it "contains data" do
+		expect(frame).to be(:data?)
+	end
+	
+	it "isn't a control frame" do
+		expect(frame).not.to be(:control?)
+	end
+	
 	with "with mask" do
 		let(:frame) {subject.new(mask: "abcd").pack("Hello World")}
 		
