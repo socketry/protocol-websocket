@@ -7,14 +7,11 @@ env:
 
 jobs:
   test:
-    runs-on: ${{matrix.os}}-latest
+    runs-on: ubuntu-20.04
     continue-on-error: ${{matrix.experimental}}
     
     strategy:
       matrix:
-        os:
-          - ubuntu
-        
         ruby:
           - "3.1"
         
