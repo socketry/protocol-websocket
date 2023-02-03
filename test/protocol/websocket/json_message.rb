@@ -1,3 +1,8 @@
+# frozen_string_literal: true
+
+# Released under the MIT License.
+# Copyright, 2022-2023, by Samuel Williams.
+
 require 'protocol/websocket/json_message'
 
 describe Protocol::WebSocket::JSONMessage do

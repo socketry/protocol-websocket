@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
 	spec.version = Protocol::WebSocket::VERSION
 	
 	spec.summary = "A low level implementation of the WebSocket protocol."
-	spec.authors = ["Samuel Williams", "Aurora", "Soumya", "Olle Jonsson", "William T. Nelson"]
+	spec.authors = ["Samuel Williams", "Aurora Nockert", "Soumya", "Olle Jonsson", "William T. Nelson"]
 	spec.license = "MIT"
 	
 	spec.cert_chain  = ['release.cert']
@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
 	
 	spec.homepage = "https://github.com/socketry/protocol-websocket"
 	
-	spec.files = Dir.glob('{lib}/**/*', File::FNM_DOTMATCH, base: __dir__)
+	spec.files = Dir.glob(['{lib}/**/*', '*.md'], File::FNM_DOTMATCH, base: __dir__)
 	
 	spec.required_ruby_version = ">= 2.5.0"
 	
@@ -24,5 +24,5 @@ Gem::Specification.new do |spec|
 	
 	spec.add_development_dependency "bundler"
 	spec.add_development_dependency "covered"
-	spec.add_development_dependency "sus", "~> 0.9.1"
+	spec.add_development_dependency "sus", "~> 0.16"
 end
