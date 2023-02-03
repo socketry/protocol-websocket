@@ -13,6 +13,15 @@ describe Protocol::WebSocket::JSONMessage do
 		expect(message.parse).to be == object
 	end
 	
+	with '#wrap' do
+		let(:text_message) {Protocol::WebSocket::TextMessage.new(JSON.dump(object))}
+		let(:message) {subject.wrap(text_message)}
+		
+		it 'can wrap a text message' do
+			expect(message.parse).to be == object
+		end
+	end
+	
 	with '#to_h' do
 		it 'can be converted to a hash' do
 			expect(message.to_h).to be == object

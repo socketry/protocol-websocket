@@ -60,7 +60,7 @@ module Protocol
 			end
 			
 			def read_header
-				if buffer = @stream.read(1)
+				if buffer = @stream.read(1) and buffer.bytesize == 1
 					return Frame.parse_header(buffer)
 				end
 				
