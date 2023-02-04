@@ -1,8 +1,6 @@
 /.bundle/
-/coverage/
-/doc/
 /pkg/
-/tmp/
-
 /gems.locked
-.covered.db
+/.covered.db
+/external
+/autobahn-tests/report

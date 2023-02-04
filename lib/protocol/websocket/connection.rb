@@ -1,22 +1,9 @@
-# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# frozen_string_literal: true
+
+# Released under the MIT License.
+# Copyright, 2019-2023, by Samuel Williams.
+# Copyright, 2019, by William T. Nelson.
+# Copyright, 2021, by Aurora Nockert.
 
 require_relative 'framer'
 require 'securerandom'
@@ -56,10 +43,10 @@ module Protocol
 			
 			def reserve!(bit)
 				if (@reserved & bit).zero?
-					raise "Unable to use #{bit}!"
+					raise ArgumentError, "Unable to use #{bit}!"
 				end
 				
-				@reserved  &= ~bit
+				@reserved &= ~bit
 				
 				return true
 			end
@@ -161,6 +148,12 @@ module Protocol
 				return self
 			end
 			
+			def close!
+				@state = :closed
+				
+				return self
+			end
+			
 			def receive_ping(frame)
 				if @state != :closed
 					write_frame(frame.reply(mask: @mask))
@@ -174,7 +167,7 @@ module Protocol
 			end
 			
 			def receive_frame(frame)
-				warn "Unhandled frame #{frame.inspect}"
+				raise ProtocolError, "Unhandled frame: #{frame}"
 			end
 			
 			def pack_text_frame(buffer, **options)

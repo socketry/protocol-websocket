@@ -1,22 +1,8 @@
-# Copyright, 2019, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# frozen_string_literal: true
+
+# Released under the MIT License.
+# Copyright, 2019-2023, by Samuel Williams.
+# Copyright, 2021, by Aurora Nockert.
 
 require_relative 'frame'
 
@@ -31,38 +17,39 @@ module Protocol
 				
 				case data.length
 				when 0
-					[nil, ""]
+					[nil, nil]
 				when 1
-					raise ProtocolError, "invalid close frame length!"
+					raise ProtocolError, "Invalid close frame length!"
 				else
 					code, reason = *data.unpack(FORMAT)
 					
 					case code
 					when 0 .. 999, 1005 .. 1006, 1015, 5000 .. 0xFFFF
-						raise ProtocolError, "invalid close code!"
+						raise ProtocolError, "Invalid close code!"
 					when 1004, 1016 .. 2999
-						raise ProtocolError, "reserved close code!"
+						raise ProtocolError, "Reserved close code!"
 					end
 					
 					reason.force_encoding(Encoding::UTF_8)
 					
 					unless reason.valid_encoding?
-						raise ProtocolError, "invalid UTF-8 in close reason!"
+						raise ProtocolError, "Invalid UTF-8 in close reason!"
 					end
 					
 					[code, reason]
 				end
 			end
 			
-			def pack(code, reason)
+			# If code is missing, reason is ignored.
+			def pack(code = nil, reason = nil)
 				if code
-					unless reason.encoding == Encoding::UTF_8
+					if reason and reason.encoding != Encoding::UTF_8
 						reason = reason.encode(Encoding::UTF_8)
 					end
 					
-					super [code, reason].pack(FORMAT)
+					super([code, reason].pack(FORMAT))
 				else
-					super String.new(encoding: Encoding::BINARY)
+					super()
 				end
 			end
 			

@@ -1,3 +1,9 @@
+# frozen_string_literal: true
+
+# Released under the MIT License.
+# Copyright, 2019-2023, by Samuel Williams.
+# Copyright, 2021, by Aurora Nockert.
+
 source "https://rubygems.org"
 
 # Specify your gem's dependencies in protocol-websocket.gemspec

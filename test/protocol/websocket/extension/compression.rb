@@ -1,22 +1,7 @@
-# Copyright, 2022, by Samuel G. D. Williams. <http://www.codeotaku.com>
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# frozen_string_literal: true
+
+# Released under the MIT License.
+# Copyright, 2022-2023, by Samuel Williams.
 
 require 'server_context'
 
@@ -42,6 +27,14 @@ describe Protocol::WebSocket::Extension::Compression do
 			Async::WebSocket::Client.connect(endpoint) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
+				
+				expect(client.reader).to have_attributes(
+					to_s: be =~ /window_bits=15 context_takeover=true/
+				)
+				
+				expect(client.writer).to have_attributes(
+					to_s: be =~ /window_bits=15 context_takeover=true/
+				)
 				
 				client.send_text("Hello World")
 				client.flush
@@ -166,6 +159,36 @@ describe Protocol::WebSocket::Extension::Compression do
 				client.flush
 				expect(client.read).to be == "Hello World"
 			end
+		end
+	end
+	
+	with '#offer' do
+		it "fails if local maximum window bits is out of bounds" do
+			expect do
+				subject.offer(client_max_window_bits: 20)
+			end.to raise_exception(ArgumentError, message: be =~ /Invalid local maximum window bits/)
+		end
+		
+		it "fails if remote maximum window bits is out of bounds" do
+			expect do
+				subject.offer(server_max_window_bits: 20)
+			end.to raise_exception(ArgumentError, message: be =~ /Invalid remote maximum window bits/)
+		end
+	end
+	
+	with '#negotiate' do
+		it "fails if invalid option is given" do
+			expect do
+				subject.negotiate(["foo", "bar"])
+			end.to raise_exception(ArgumentError, message: be =~ /Unknown option: foo/)
+		end
+	end
+	
+	with '#accept' do
+		it "fails if invalid option is given" do
+			expect do
+				subject.accept(["foo", "bar"])
+			end.to raise_exception(ArgumentError, message: be =~ /Unknown option: foo/)
 		end
 	end
 end

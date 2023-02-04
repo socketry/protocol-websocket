@@ -1,20 +1,26 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-require "fileutils"
+# Released under the MIT License.
+# Copyright, 2021, by Aurora Nockert.
+# Copyright, 2022-2023, by Samuel Williams.
+
 require "json"
 
-Kernel.system("pip install autobahntestsuite", exception: true)
+config_root = File.expand_path("config", __dir__)
+report_root = File.expand_path("report", __dir__)
 
-falcon = Process.spawn("bundle exec #{__dir__}/autobahn-echo-server.ru", pgroup: true)
+falcon = Process.spawn("bundle", "exec", "./autobahn-echo-server.ru", chdir: __dir__, pgroup: true)
 falcon_pg = Process.getpgid(falcon)
 
-Kernel.system("wstest -m fuzzingclient", chdir: __dir__, exception: true)
+begin
+	system("docker", "run", "--rm", "-v", "#{config_root}:/config", "-v", "#{report_root}:/reports", "--net=host", "--name", "wstest", "crossbario/autobahn-testsuite", "wstest", "-m", "fuzzingclient", "-s", "/config/fuzzingclient.json", chdir: __dir__, exception: true)
+ensure
+	Process.kill("KILL", -falcon_pg)
+end
 
-Process.kill("KILL", -falcon_pg)
-
-result = JSON.parse(File.read("/tmp/autobahn-server/index.json"))["protocol-websocket"]
-
-FileUtils.rm_r("/tmp/autobahn-server/")
+results_path = File.expand_path("index.json", report_root)
+result = JSON.parse(File.read(results_path))["protocol-websocket"]
 
 def failed_state(name)
 	name != "OK" and name != "INFORMATIONAL"
