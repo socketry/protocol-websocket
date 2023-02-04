@@ -7,13 +7,13 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     continue-on-error: ${{matrix.experimental}}
     
     strategy:
       matrix:
         ruby:
-          - "3.1"
+          - "3.2"
         
         experimental: [false]
     
@@ -22,14 +22,11 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{matrix.ruby}}
         bundler-cache: true
-    
-    - uses: actions/setup-python@v2
-      with:
-        python-version: pypy2
     
     - name: Run Autobahn server tests
       timeout-minutes: 30
