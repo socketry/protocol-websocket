@@ -135,9 +135,9 @@ module Protocol
 				opcode = byte & 0b0000_1111
 				
 				if (0x3 .. 0x7).include?(opcode)
-					raise ProtocolError, "non-control opcode = #{opcode} is reserved!"
+					raise ProtocolError, "Non-control opcode = #{opcode} is reserved!"
 				elsif (0xB .. 0xF).include?(opcode)
-					raise ProtocolError, "control opcode = #{opcode} is reserved!"
+					raise ProtocolError, "Control opcode = #{opcode} is reserved!"
 				end
 				
 				return finished, flags, opcode
@@ -177,7 +177,7 @@ module Protocol
 				payload = stream.read(length) or raise EOFError, "Could not read payload!"
 				
 				if payload.bytesize != length
-					raise EOFError, "Incorrect payload length: #{@length} != #{@payload.bytesize}!"
+					raise EOFError, "Incorrect payload length: #{@length} != #{payload.bytesize}!"
 				end
 				
 				return self.new(finished, payload, flags: flags, opcode: opcode, mask: mask)
