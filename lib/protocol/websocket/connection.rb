@@ -43,10 +43,10 @@ module Protocol
 			
 			def reserve!(bit)
 				if (@reserved & bit).zero?
-					raise "Unable to use #{bit}!"
+					raise ArgumentError, "Unable to use #{bit}!"
 				end
 				
-				@reserved  &= ~bit
+				@reserved &= ~bit
 				
 				return true
 			end
@@ -148,6 +148,12 @@ module Protocol
 				return self
 			end
 			
+			def close!
+				@state = :closed
+				
+				return self
+			end
+			
 			def receive_ping(frame)
 				if @state != :closed
 					write_frame(frame.reply(mask: @mask))
@@ -161,7 +167,7 @@ module Protocol
 			end
 			
 			def receive_frame(frame)
-				warn "Unhandled frame #{frame.inspect}"
+				raise ProtocolError, "Unhandled frame: #{frame}"
 			end
 			
 			def pack_text_frame(buffer, **options)
