@@ -36,16 +36,17 @@ module Protocol
 						@level = level
 						@memory_level = memory_level
 						@strategy = strategy
-						
-						if window_bits < MINIMUM_WINDOW_BITS
-							window_bits = MINIMUM_WINDOW_BITS
-						end
+
+						# This is handled during negotiation:
+						# if window_bits < MINIMUM_WINDOW_BITS
+						# 	window_bits = MINIMUM_WINDOW_BITS
+						# end
 						
 						@window_bits = window_bits
 						@context_takeover = context_takeover
 					end
 					
-					def inspect
+					def to_s
 						"#<#{self.class} window_bits=#{@window_bits} context_takeover=#{@context_takeover}>"
 					end
 					

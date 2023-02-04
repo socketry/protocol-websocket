@@ -71,7 +71,7 @@ module Protocol
 							options[:client_max_window_bits] = value
 							header << "client_max_window_bits=#{value}"
 						else
-							raise ArgumentError, "Unknown option #{key}!"
+							raise ArgumentError, "Unknown option: #{key}!"
 						end
 					end
 					
@@ -102,7 +102,7 @@ module Protocol
 						when "client_max_window_bits"
 							options[:client_max_window_bits] = Integer(value || 15)
 						else
-							raise ArgumentError, "Unknown option #{key}!"
+							raise ArgumentError, "Unknown option: #{key}!"
 						end
 					end
 					
