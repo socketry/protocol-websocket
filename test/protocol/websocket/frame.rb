@@ -8,21 +8,24 @@ require 'protocol/websocket/frame'
 describe Protocol::WebSocket::Frame do
 	let(:frame) {subject.new}
 	
-	it "rejects excessively large frames" do
-		data = String.new
-		expect(data).to receive(:bytesize).and_return(2**64)
-		
-		expect do
-			frame.pack(data)
-		end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /bigger than allowed/)
+	with '#pack' do
+		it "rejects excessively large frames" do
+			data = String.new
+			expect(data).to receive(:bytesize).and_return(2**64)
+			
+			expect do
+				frame.pack(data)
+			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /bigger than allowed/)
+		end
 	end
 	
-	it "can apply itself to a connection" do
-		connection = Protocol::WebSocket::Connection.new(nil)
+	with '#apply' do
+		let(:connection) {Protocol::WebSocket::Connection.new(nil)}
 		
-		expect(connection).to receive(:receive_frame).with(frame).and_return(nil)
-		
-		frame.apply(connection)
+		it "can apply itself to a connection" do
+			expect(connection).to receive(:receive_frame).with(frame).and_return(nil)
+			frame.apply(connection)
+		end
 	end
 	
 	with '.parse_header' do
