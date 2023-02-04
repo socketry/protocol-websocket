@@ -17,38 +17,39 @@ module Protocol
 				
 				case data.length
 				when 0
-					[nil, ""]
+					[nil, nil]
 				when 1
-					raise ProtocolError, "invalid close frame length!"
+					raise ProtocolError, "Invalid close frame length!"
 				else
 					code, reason = *data.unpack(FORMAT)
 					
 					case code
 					when 0 .. 999, 1005 .. 1006, 1015, 5000 .. 0xFFFF
-						raise ProtocolError, "invalid close code!"
+						raise ProtocolError, "Invalid close code!"
 					when 1004, 1016 .. 2999
-						raise ProtocolError, "reserved close code!"
+						raise ProtocolError, "Reserved close code!"
 					end
 					
 					reason.force_encoding(Encoding::UTF_8)
 					
 					unless reason.valid_encoding?
-						raise ProtocolError, "invalid UTF-8 in close reason!"
+						raise ProtocolError, "Invalid UTF-8 in close reason!"
 					end
 					
 					[code, reason]
 				end
 			end
 			
-			def pack(code, reason)
+			# If code is missing, reason is ignored.
+			def pack(code = nil, reason = nil)
 				if code
-					unless reason.encoding == Encoding::UTF_8
+					if reason and reason.encoding != Encoding::UTF_8
 						reason = reason.encode(Encoding::UTF_8)
 					end
 					
-					super [code, reason].pack(FORMAT)
+					super([code, reason].pack(FORMAT))
 				else
-					super String.new(encoding: Encoding::BINARY)
+					super()
 				end
 			end
 			

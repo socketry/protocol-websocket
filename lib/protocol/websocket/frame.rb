@@ -86,7 +86,7 @@ module Protocol
 			attr_accessor :length
 			attr_accessor :payload
 			
-			def pack(data)
+			def pack(data = "")
 				length = data.bytesize
 				
 				if length.bit_length > 63
