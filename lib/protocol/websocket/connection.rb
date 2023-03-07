@@ -60,7 +60,15 @@ module Protocol
 			end
 			
 			def close(code = Error::NO_ERROR, reason = "")
-				send_close(code, reason) unless closed?
+				unless closed?
+					begin
+						send_close(code, reason)
+					rescue
+						# Ignore.
+					end
+					
+					@state = :closed
+				end
 				
 				@framer.close
 			end
