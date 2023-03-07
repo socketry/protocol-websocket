@@ -120,11 +120,13 @@ module Protocol
 			end
 					
 			def receive_close(frame)
-				@state = :closed
-				
 				code, reason = frame.unpack
 				
-				send_close(code, reason)
+				# If we're already closed, then we don't need to send a close frame. Otherwise, according to the RFC, we should echo the close frame. However, it's possible it will fail to send if the connection is already closed.
+				unless @state == :closed
+					@state = :closed
+					send_close(code, reason)
+				end
 				
 				if code and code != Error::NO_ERROR
 					raise ClosedError.new reason, code
@@ -196,8 +198,12 @@ module Protocol
 				frame = CloseFrame.new(mask: @mask)
 				frame.pack(code, reason)
 				
-				self.write_frame(frame)
-				self.flush
+				begin
+					self.write_frame(frame)
+					self.flush
+				rescue EOFError, Errno::EPIPE
+					# Ignore.
+				end
 				
 				@state = :closed
 			end
