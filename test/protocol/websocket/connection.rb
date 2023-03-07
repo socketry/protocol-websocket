@@ -15,12 +15,20 @@ describe Protocol::WebSocket::Connection do
 	
 	let(:connection) {subject.new(server)}
 	
-	it "can manipulate open/closed state" do
-		expect(connection).not.to be(:closed?)
-		connection.close!
-		expect(connection).to be(:closed?)
-		connection.open!
-		expect(connection).not.to be(:closed?)
+	with '#close!' do
+		it "can manipulate open/closed state" do
+			expect(connection).not.to be(:closed?)
+			connection.close!
+			expect(connection).to be(:closed?)
+			connection.open!
+			expect(connection).not.to be(:closed?)
+		end
+		
+		it "ignores write failures" do
+			server.close
+			connection.close!
+			expect(connection).to be(:closed?)
+		end
 	end
 	
 	it "doesn't generate mask by default" do
