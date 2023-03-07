@@ -62,7 +62,15 @@ module Protocol
 			end
 			
 			def close!(...)
-				@state = :closed
+				unless @state == :closed
+					@state = :closed
+					
+					begin
+						send_close(...)
+					rescue
+						# Ignore.
+					end
+				end
 				
 				return self
 			end
@@ -72,16 +80,7 @@ module Protocol
 			end
 			
 			def close(...)
-				unless @state == :closed
-					close!
-					
-					begin
-						send_close(...)
-					rescue
-						# Ignore.
-					end
-				end
-				
+				self.close!(...)
 				@framer.close
 			end
 			
@@ -100,11 +99,11 @@ module Protocol
 				
 				return frame
 			rescue ProtocolError => error
-				close(error.code, error.message)
+				close!(error.code, error.message)
 				
 				raise
 			rescue
-				close(Error::PROTOCOL_ERROR, $!.message)
+				close!(Error::PROTOCOL_ERROR, $!.message)
 				
 				raise
 			end
@@ -144,8 +143,7 @@ module Protocol
 				
 				# If we're already closed, then we don't need to send a close frame. Otherwise, according to the RFC, we should echo the close frame. However, it's possible it will fail to send if the connection is already closed.
 				unless @state == :closed
-					close!
-					send_close(code, reason)
+					close!(code, reason)
 				end
 				
 				if code and code != Error::NO_ERROR
@@ -245,7 +243,7 @@ module Protocol
 					end
 				end
 			rescue ProtocolError => error
-				close(error.code, error.message)
+				close!(error.code, error.message)
 				
 				raise
 			end
