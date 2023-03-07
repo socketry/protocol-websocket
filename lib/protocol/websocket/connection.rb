@@ -55,12 +55,32 @@ module Protocol
 				@framer.flush
 			end
 			
+			def open!
+				@state = :open
+				
+				return self
+			end
+			
+			def close!(...)
+				@state = :closed
+				
+				return self
+			end
+			
 			def closed?
 				@state == :closed
 			end
 			
-			def close(code = Error::NO_ERROR, reason = "")
-				send_close(code, reason) unless closed?
+			def close(...)
+				unless @state == :closed
+					close!
+					
+					begin
+						send_close(...)
+					rescue
+						# Ignore.
+					end
+				end
 				
 				@framer.close
 			end
@@ -80,11 +100,11 @@ module Protocol
 				
 				return frame
 			rescue ProtocolError => error
-				send_close(error.code, error.message)
+				close(error.code, error.message)
 				
 				raise
 			rescue
-				send_close(Error::PROTOCOL_ERROR, $!.message)
+				close(Error::PROTOCOL_ERROR, $!.message)
 				
 				raise
 			end
@@ -120,11 +140,13 @@ module Protocol
 			end
 					
 			def receive_close(frame)
-				@state = :closed
-				
 				code, reason = frame.unpack
 				
-				send_close(code, reason)
+				# If we're already closed, then we don't need to send a close frame. Otherwise, according to the RFC, we should echo the close frame. However, it's possible it will fail to send if the connection is already closed.
+				unless @state == :closed
+					close!
+					send_close(code, reason)
+				end
 				
 				if code and code != Error::NO_ERROR
 					raise ClosedError.new reason, code
@@ -140,18 +162,6 @@ module Protocol
 				else
 					raise ProtocolError, "Cannot send ping in state #{@state}"
 				end
-			end
-			
-			def open!
-				@state = :open
-				
-				return self
-			end
-			
-			def close!
-				@state = :closed
-				
-				return self
 			end
 			
 			def receive_ping(frame)
@@ -198,8 +208,6 @@ module Protocol
 				
 				self.write_frame(frame)
 				self.flush
-				
-				@state = :closed
 			end
 			
 			# Write a message to the connection.
@@ -237,7 +245,7 @@ module Protocol
 					end
 				end
 			rescue ProtocolError => error
-				send_close(error.code, error.message)
+				close(error.code, error.message)
 				
 				raise
 			end
