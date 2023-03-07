@@ -156,7 +156,7 @@ describe Protocol::WebSocket::Connection do
 				connection.read_frame
 			end.to raise_exception(EOFError, message: be =~ /Fake error/)
 			
-			expect(connection).not.to be(:closed?)
+			expect(connection).to be(:closed?)
 			
 			frame = client.read_frame
 			expect(frame).to be_a(Protocol::WebSocket::CloseFrame)
