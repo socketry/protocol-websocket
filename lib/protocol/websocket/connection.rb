@@ -204,8 +204,6 @@ module Protocol
 				rescue EOFError, Errno::EPIPE
 					# Ignore.
 				end
-				
-				@state = :closed
 			end
 			
 			# Write a message to the connection.
