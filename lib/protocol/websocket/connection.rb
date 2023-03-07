@@ -71,6 +71,8 @@ module Protocol
 						# Ignore.
 					end
 				end
+				
+				return self
 			end
 			
 			def closed?
