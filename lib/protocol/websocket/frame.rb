@@ -86,7 +86,7 @@ module Protocol
 			attr_accessor :length
 			attr_accessor :payload
 			
-			if IO.const_defined?(:Buffer) && IO::Buffer.respond_to?(:for)
+			if IO.const_defined?(:Buffer) && IO::Buffer.respond_to?(:for) && IO::Buffer.method_defined?(:xor!)
 				private def mask_xor(data, mask)
 					buffer = data.dup
 					mask_buffer = IO::Buffer.for(mask)
@@ -98,6 +98,7 @@ module Protocol
 					return buffer
 				end
 			else
+				warn "IO::Buffer not available, falling back to slow implementation of mask_xor!"
 				private def mask_xor(data, mask)
 					result = String.new(encoding: Encoding::BINARY)
 						
