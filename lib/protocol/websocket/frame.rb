@@ -86,6 +86,30 @@ module Protocol
 			attr_accessor :length
 			attr_accessor :payload
 			
+			if IO.const_defined?(:Buffer) && IO::Buffer.respond_to?(:for) && IO::Buffer.method_defined?(:xor!)
+				private def mask_xor(data, mask)
+					buffer = data.dup
+					mask_buffer = IO::Buffer.for(mask)
+					
+					IO::Buffer.for(buffer) do |buffer|
+						buffer.xor!(mask_buffer)
+					end
+					
+					return buffer
+				end
+			else
+				warn "IO::Buffer not available, falling back to slow implementation of mask_xor!"
+				private def mask_xor(data, mask)
+					result = String.new(encoding: Encoding::BINARY)
+						
+					for i in 0...data.bytesize do
+						result << (data.getbyte(i) ^ mask.getbyte(i % 4))
+					end
+					
+					return result
+				end
+			end
+			
 			def pack(data = "")
 				length = data.bytesize
 				
@@ -94,12 +118,7 @@ module Protocol
 				end
 				
 				if @mask
-					@payload = String.new(encoding: Encoding::BINARY)
-					
-					for i in 0...data.bytesize do
-						@payload << (data.getbyte(i) ^ mask.getbyte(i % 4))
-					end
-					
+					@payload = mask_xor(data, mask)
 					@length = length
 				else
 					@payload = data
@@ -111,13 +130,7 @@ module Protocol
 			
 			def unpack
 				if @mask and !@payload.empty?
-					data = String.new(encoding: Encoding::BINARY)
-					
-					for i in 0...@payload.bytesize do
-						data << (@payload.getbyte(i) ^ @mask.getbyte(i % 4))
-					end
-					
-					return data
+					return mask_xor(@payload, @mask)
 				else
 					return @payload
 				end
