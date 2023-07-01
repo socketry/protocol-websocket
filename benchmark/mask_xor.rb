@@ -1,3 +1,8 @@
+# frozen_string_literal: true
+
+# Released under the MIT License.
+# Copyright, 2023, by Samuel Williams.
+
 def mask_xor_buffer(data, mask)
 	buffer = data.dup
 	mask_buffer = IO::Buffer.for(mask)

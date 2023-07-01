@@ -20,9 +20,4 @@ Gem::Specification.new do |spec|
 	spec.required_ruby_version = ">= 3.0"
 	
 	spec.add_dependency "protocol-http", "~> 0.2"
-	spec.add_dependency "protocol-http1", "~> 0.2"
-	
-	spec.add_development_dependency "bundler"
-	spec.add_development_dependency "covered"
-	spec.add_development_dependency "sus", "~> 0.16"
 end
