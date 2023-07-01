@@ -200,6 +200,7 @@ module Protocol
 				write_frame(@writer.pack_binary_frame(buffer, **options))
 			end
 			
+			# Send a control frame with data containing a specified control sequence to begin the closing handshake. Does not close the connection, until the remote end responds with a close frame.
 			def send_close(code = Error::NO_ERROR, reason = "")
 				frame = CloseFrame.new(mask: @mask)
 				frame.pack(code, reason)
