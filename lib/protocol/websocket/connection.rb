@@ -61,8 +61,17 @@ module Protocol
 				return self
 			end
 			
+			# If not already closed, transition the connection to the closed state and send a close frame.
 			def close!(...)
-				@state = :closed
+				unless @state == :closed
+					@state = :closed
+					
+					begin
+						send_close(...)
+					rescue
+						# Ignore errors.
+					end
+				end
 				
 				return self
 			end
@@ -71,16 +80,9 @@ module Protocol
 				@state == :closed
 			end
 			
+			# Immediately transition the connection to the closed state and close the underlying connection.
 			def close(...)
-				unless @state == :closed
-					close!
-					
-					begin
-						send_close(...)
-					rescue
-						# Ignore.
-					end
-				end
+				close!(...)
 				
 				@framer.close
 			end
@@ -101,11 +103,9 @@ module Protocol
 				return frame
 			rescue ProtocolError => error
 				close(error.code, error.message)
-				
 				raise
-			rescue
-				close(Error::PROTOCOL_ERROR, $!.message)
-				
+			rescue => error
+				close(Error::PROTOCOL_ERROR, error.message)
 				raise
 			end
 			
@@ -142,11 +142,8 @@ module Protocol
 			def receive_close(frame)
 				code, reason = frame.unpack
 				
-				# If we're already closed, then we don't need to send a close frame. Otherwise, according to the RFC, we should echo the close frame. However, it's possible it will fail to send if the connection is already closed.
-				unless @state == :closed
-					close!
-					send_close(code, reason)
-				end
+				# On receiving a close frame, we must enter the closed state:
+				close!(code, reason)
 				
 				if code and code != Error::NO_ERROR
 					raise ClosedError.new reason, code
@@ -202,6 +199,7 @@ module Protocol
 				write_frame(@writer.pack_binary_frame(buffer, **options))
 			end
 			
+			# Send a control frame with data containing a specified control sequence to begin the closing handshake. Does not close the connection, until the remote end responds with a close frame.
 			def send_close(code = Error::NO_ERROR, reason = "")
 				frame = CloseFrame.new(mask: @mask)
 				frame.pack(code, reason)
@@ -246,7 +244,6 @@ module Protocol
 				end
 			rescue ProtocolError => error
 				close(error.code, error.message)
-				
 				raise
 			end
 		end
