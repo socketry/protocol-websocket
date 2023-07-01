@@ -149,8 +149,6 @@ describe Protocol::WebSocket::Connection do
 		end
 		
 		it "closes connection if general exception occurs during processing" do
-			skip "This test is broken"
-			
 			frame = Protocol::WebSocket::TextFrame.new
 			frame.pack "Hello World!"
 			

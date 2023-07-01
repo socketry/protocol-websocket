@@ -101,6 +101,12 @@ module Protocol
 				frame.apply(self)
 				
 				return frame
+			rescue ProtocolError => error
+				close(error.code, error.message)
+				raise
+			rescue => error
+				close(Error::PROTOCOL_ERROR, error.message)
+				raise
 			end
 			
 			def write_frame(frame)
@@ -236,9 +242,6 @@ module Protocol
 						return frames.first.read_message(buffer)
 					end
 				end
-			rescue ProtocolError => error
-				close(error.code, error.message)
-				raise
 			end
 		end
 	end
