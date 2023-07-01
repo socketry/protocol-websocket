@@ -62,8 +62,16 @@ module Protocol
 			end
 			
 			# If not already closed, transition the connection to the closed state and send a close frame.
-			def close!
-				@state = :closed
+			def close!(...)
+				unless @state == :closed
+					@state = :closed
+					
+					begin
+						send_close(...)
+					rescue
+						# Ignore errors.
+					end
+				end
 				
 				return self
 			end
@@ -74,15 +82,7 @@ module Protocol
 			
 			# Immediately transition the connection to the closed state and close the underlying connection.
 			def close(...)
-				unless @state == :closed
-					@state = :closed
-					
-					begin
-						send_close(...)
-					rescue
-						# Ignore IO Errors.
-					end
-				end
+				close!(...)
 				
 				@framer.close
 			end
@@ -143,7 +143,7 @@ module Protocol
 				code, reason = frame.unpack
 				
 				# On receiving a close frame, we must enter the closed state:
-				close!
+				close!(code, reason)
 				
 				if code and code != Error::NO_ERROR
 					raise ClosedError.new reason, code
@@ -242,6 +242,9 @@ module Protocol
 						return frames.first.read_message(buffer)
 					end
 				end
+			rescue ProtocolError => error
+				close(error.code, error.message)
+				raise
 			end
 		end
 	end
