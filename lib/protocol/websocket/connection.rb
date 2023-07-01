@@ -61,6 +61,7 @@ module Protocol
 				return self
 			end
 			
+			# If not already closed, transition the connection to the closed state and send a close frame.
 			def close!(...)
 				unless @state == :closed
 					@state = :closed
@@ -68,7 +69,7 @@ module Protocol
 					begin
 						send_close(...)
 					rescue
-						# Ignore.
+						# Ignore IO Errors.
 					end
 				end
 				
@@ -79,6 +80,7 @@ module Protocol
 				@state == :closed
 			end
 			
+			# Immediately transition the connection to the closed state and close the underlying connection.
 			def close(...)
 				self.close!(...)
 				@framer.close
@@ -141,10 +143,8 @@ module Protocol
 			def receive_close(frame)
 				code, reason = frame.unpack
 				
-				# If we're already closed, then we don't need to send a close frame. Otherwise, according to the RFC, we should echo the close frame. However, it's possible it will fail to send if the connection is already closed.
-				unless @state == :closed
-					close!(code, reason)
-				end
+				# On receiving a close frame, we must enter the closed state:
+				close!(code, reason)
 				
 				if code and code != Error::NO_ERROR
 					raise ClosedError.new reason, code
