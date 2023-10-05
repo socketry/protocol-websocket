@@ -54,21 +54,29 @@ module Protocol
 					attr :context_takeover
 					
 					def pack_text_frame(buffer, compress: true, **options)
-						buffer = self.deflate(buffer)
+						if compress
+							buffer = self.deflate(buffer)
+						end
 						
 						frame = @parent.pack_text_frame(buffer, **options)
 						
-						frame.flags |= Frame::RSV1
+						if compress
+							frame.flags |= Frame::RSV1
+						end
 						
 						return frame
 					end
 					
 					def pack_binary_frame(buffer, compress: false, **options)
-						buffer = self.deflate(buffer)
+						if compress
+							buffer = self.deflate(buffer)
+						end
 						
 						frame = @parent.pack_binary_frame(buffer, **options)
 						
-						frame.flags |= Frame::RSV1
+						if compress
+							frame.flags |= Frame::RSV1
+						end
 						
 						return frame
 					end

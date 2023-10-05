@@ -34,6 +34,10 @@ module Protocol
 				@payload = payload
 			end
 			
+			def flag?(value)
+				@flags & value != 0
+			end
+			
 			def <=> other
 				to_ary <=> other.to_ary
 			end

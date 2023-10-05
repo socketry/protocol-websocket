@@ -43,12 +43,36 @@ describe Protocol::WebSocket::Extension::Compression do
 			end
 		end
 		
+		it "can send and receive a text message without compression" do
+			Async::WebSocket::Client.connect(endpoint) do |client|
+				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
+				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
+				
+				client.send_text("Hello World", compress: false)
+				client.flush
+				
+				expect(client.read).to be == "Hello World"
+			end
+		end
+		
 		it "can send and receive a binary message using compression" do
 			Async::WebSocket::Client.connect(endpoint) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
-				client.send_binary("Hello World")
+				client.send_binary("Hello World", compress: true)
+				client.flush
+				
+				expect(client.read).to be == "Hello World"
+			end
+		end
+		
+		it "can send and receive a binary message without compression" do
+			Async::WebSocket::Client.connect(endpoint) do |client|
+				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
+				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
+				
+				client.send_binary("Hello World", compress: false)
 				client.flush
 				
 				expect(client.read).to be == "Hello World"
