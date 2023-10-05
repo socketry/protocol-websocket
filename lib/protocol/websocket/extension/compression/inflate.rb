@@ -54,11 +54,10 @@ module Protocol
 						
 						frame = frames.first
 						
-						if frame.flags & Frame::RSV1
+						if frame.flag?(Frame::RSV1)
 							buffer = self.inflate(buffer)
+							frame.flags &= ~Frame::RSV1
 						end
-						
-						frame.flags &= ~Frame::RSV1
 						
 						return buffer
 					end
