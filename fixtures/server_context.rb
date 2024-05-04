@@ -10,7 +10,6 @@ require 'protocol/http/middleware/builder'
 require 'async/http/server'
 require 'async/http/client'
 require 'async/http/endpoint'
-require 'async/io/shared_endpoint'
 require 'async/websocket/adapters/http'
 require 'async/websocket/client'
 
@@ -64,7 +63,7 @@ module ServerContext
 		@client = Async::HTTP::Client.new(endpoint, protocol: endpoint.protocol, retries: retries)
 		
 		# We bind the endpoint before running the server so that we know incoming connections will be accepted:
-		@bound_endpoint = Async::IO::SharedEndpoint.bound(endpoint)
+		@bound_endpoint = endpoint.bound
 		
 		# I feel a dedicated class might be better than this hack:
 		mock(@bound_endpoint) do |mock|
