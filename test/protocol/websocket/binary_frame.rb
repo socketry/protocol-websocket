@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2019-2023, by Samuel Williams.
 
-require 'a_websocket_frame'
+require 'protocol/websocket/a_websocket_frame'
 require 'protocol/websocket/binary_frame'
 
 describe Protocol::WebSocket::BinaryFrame do
@@ -24,7 +24,7 @@ describe Protocol::WebSocket::BinaryFrame do
 	with "with mask" do
 		let(:frame) {subject.new(mask: "abcd").pack("Hello World")}
 		
-		it_behaves_like AWebSocketFrame
+		it_behaves_like Protocol::WebSocket::AWebSocketFrame
 		
 		it "encodes binary representation" do
 			buffer = StringIO.new
@@ -38,7 +38,7 @@ describe Protocol::WebSocket::BinaryFrame do
 	with "without mask" do
 		let(:frame) {subject.new.pack("Hello World")}
 		
-		it_behaves_like AWebSocketFrame
+		it_behaves_like Protocol::WebSocket::AWebSocketFrame
 		
 		it "encodes binary representation" do
 			buffer = StringIO.new

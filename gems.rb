@@ -20,10 +20,14 @@ group :test do
 	gem "sus"
 	gem "covered"
 	
+	gem "sus-fixtures-async"
+	gem "sus-fixtures-async-http"
+	
 	gem "bake-test"
 	gem "bake-test-external"
 	
+	# Used for autobahn tests.
+	gem "falcon"
 	gem "async-websocket"
 	gem "async-http"
-	gem "falcon"
 end

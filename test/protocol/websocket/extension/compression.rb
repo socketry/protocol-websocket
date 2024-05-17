@@ -3,14 +3,42 @@
 # Released under the MIT License.
 # Copyright, 2022-2023, by Samuel Williams.
 
-require 'server_context'
+require 'protocol/websocket/extension/compression'
+
+require 'async/websocket'
+require 'async/websocket/adapters/http'
+require 'sus/fixtures/async/reactor_context'
+require 'sus/fixtures/async/http/server_context'
 
 describe Protocol::WebSocket::Extension::Compression do
-	include ServerContext
+	include Sus::Fixtures::Async::HTTP::ServerContext
+	
+	class WebSocketServer < ::Protocol::HTTP::Middleware
+		def initialize(handler)
+			@handler = handler
+			super(nil)
+		end
+		
+		def call(request)
+			Async::WebSocket::Adapters::HTTP.open(request) do |connection|
+				@handler.websocket_server(request, connection)
+			end or super
+		end
+	end
+	
+	def websocket_server(request, connection)
+		while message = connection.read
+			message.send(connection)
+		end
+	end
+	
+	def app
+		WebSocketServer.new(self)
+	end
 	
 	with 'no extensions' do
 		it "can send and receive a text message" do
-			Async::WebSocket::Client.connect(endpoint, extensions: nil) do |client|
+			Async::WebSocket::Client.connect(client_endpoint, extensions: nil) do |client|
 				expect(client.writer).not.to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).not.to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
@@ -24,7 +52,7 @@ describe Protocol::WebSocket::Extension::Compression do
 	
 	with 'default extensions' do
 		it "can send and receive a text message using compression" do
-			Async::WebSocket::Client.connect(endpoint) do |client|
+			Async::WebSocket::Client.connect(client_endpoint) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
@@ -44,7 +72,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 		
 		it "can send and receive a text message without compression" do
-			Async::WebSocket::Client.connect(endpoint) do |client|
+			Async::WebSocket::Client.connect(client_endpoint) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
@@ -56,7 +84,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 		
 		it "can send and receive a binary message using compression" do
-			Async::WebSocket::Client.connect(endpoint) do |client|
+			Async::WebSocket::Client.connect(client_endpoint) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
@@ -68,7 +96,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 		
 		it "can send and receive a binary message without compression" do
-			Async::WebSocket::Client.connect(endpoint) do |client|
+			Async::WebSocket::Client.connect(client_endpoint) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
@@ -111,7 +139,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 		
 		it "can send and receive a text message using compression" do
-			Async::WebSocket::Client.connect(endpoint, extensions: extensions) do |client|
+			Async::WebSocket::Client.connect(client_endpoint, extensions: extensions) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
@@ -169,7 +197,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 		
 		it "can send and receive a text message using compression" do
-			Async::WebSocket::Client.connect(endpoint, extensions: extensions) do |client|
+			Async::WebSocket::Client.connect(client_endpoint, extensions: extensions) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
 				expect(client.reader).to be_a(Protocol::WebSocket::Extension::Compression::Inflate)
 				
