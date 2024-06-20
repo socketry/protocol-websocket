@@ -4,6 +4,7 @@
 # Copyright, 2022-2023, by Samuel Williams.
 
 require_relative 'frame'
+require_relative 'coder'
 
 module Protocol
 	module WebSocket
@@ -29,6 +30,21 @@ module Protocol
 			
 			def encoding
 				@buffer.encoding
+			end
+			
+			# Generate a message from a value using the given coder.
+			# @property value [Object] The value to encode.
+			# @property coder [Coder] The coder to use. Defaults to JSON.
+			def self.generate(value, coder = Coder::DEFAULT)
+				new(coder.generate(value))
+			end
+			
+			def parse(coder = Coder::DEFAULT)
+				coder.parse(@buffer)
+			end
+			
+			def to_h(...)
+				parse(...).to_h
 			end
 		end
 		
