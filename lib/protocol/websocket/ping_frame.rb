@@ -8,6 +8,7 @@ require_relative 'pong_frame'
 
 module Protocol
 	module WebSocket
+		# Represents a ping frame that is sent or received by a WebSocket connection.
 		class PingFrame < Frame
 			OPCODE = 0x9
 			

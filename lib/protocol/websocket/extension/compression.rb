@@ -10,6 +10,7 @@ require_relative 'compression/deflate'
 module Protocol
 	module WebSocket
 		module Extension
+			# Provides support for the permessage-deflate extension.
 			module Compression
 				# Client offer to server, construct a list of requested compression parameters suitable for the `Sec-WebSocket-Extensions` header.
 				# @returns [Array(String)] a list of compression parameters suitable to send to the server.

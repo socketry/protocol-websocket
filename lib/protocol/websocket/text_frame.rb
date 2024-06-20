@@ -9,10 +9,11 @@ require_relative 'message'
 
 module Protocol
 	module WebSocket
-		# Implements the text frame for sending and receiving text.
+		# Represents a text frame that is sent or received by a WebSocket connection.
 		class TextFrame < Frame
 			OPCODE = 0x1
 			
+			# @returns [Boolean] if the frame contains data.
 			def data?
 				true
 			end

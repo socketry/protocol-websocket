@@ -7,6 +7,7 @@ require 'protocol/http/error'
 
 module Protocol
 	module WebSocket
+		# Represents an error that occurred during the WebSocket protocol negotiation or communication.
 		# Status codes as defined by <https://tools.ietf.org/html/rfc6455#section-7.4.1>.
 		class Error < HTTP::Error
 			# Indicates a normal closure, meaning that the purpose for which the connection was established has been fulfilled.
@@ -24,9 +25,7 @@ module Protocol
 			# There are other status codes but most of them are "implementation specific".
 		end
 		
-		# Raised by stream or connection handlers, results in GOAWAY frame
-		# which signals termination of the current connection. You *cannot*
-		# recover from this exception, or any exceptions subclassed from it.
+		# Raised by stream or connection handlers, results in GOAWAY frame which signals termination of the current connection. You *cannot* recover from this exception, or any exceptions subclassed from it.
 		class ProtocolError < Error
 			def initialize(message, code = PROTOCOL_ERROR)
 				super(message)
@@ -34,6 +33,7 @@ module Protocol
 				@code = code
 			end
 			
+			# @attribute [Integer] The status code associated with the error.
 			attr :code
 		end
 		

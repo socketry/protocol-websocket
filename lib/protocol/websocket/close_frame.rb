@@ -8,10 +8,13 @@ require_relative 'frame'
 
 module Protocol
 	module WebSocket
+		# Represents a close frame that is sent or received by a WebSocket connection.
 		class CloseFrame < Frame
 			OPCODE = 0x8
 			FORMAT = "na*"
 			
+			# Unpack the frame data into a close code and reason.
+			# @returns [Tuple(Integer, String)] The close code and reason.
 			def unpack
 				data = super
 				
@@ -40,7 +43,10 @@ module Protocol
 				end
 			end
 			
+			# Pack a close code and reason into the frame data.
 			# If code is missing, reason is ignored.
+			# @parameter code [Integer | Nil] The close code.
+			# @parameter reason [String | Nil] The close reason.
 			def pack(code = nil, reason = nil)
 				if code
 					if reason and reason.encoding != Encoding::UTF_8
@@ -53,6 +59,7 @@ module Protocol
 				end
 			end
 			
+			# Apply this frame to the specified connection.
 			def apply(connection)
 				connection.receive_close(self)
 			end

@@ -6,7 +6,11 @@ Provides a low-level implementation of the WebSocket protocol according to [RFC6
 
 ## Usage
 
-Please see the [project documentation](https://socketry.github.io/protocol-websocket).
+Please see the [project documentation](https://socketry.github.io/protocol-websocket/) for more details.
+
+  - [Getting Started](https://socketry.github.io/protocol-websocket/guides/getting-started/index) - This guide explains how to use `protocol-websocket` for implementing a websocket client and server.
+
+  - [Extensions](https://socketry.github.io/protocol-websocket/guides/extensions/index) - This guide explains how to use `protocol-websocket` for implementing a websocket client and server using extensions.
 
 ## Contributing
 

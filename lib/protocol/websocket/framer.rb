@@ -34,16 +34,18 @@ module Protocol
 				@frames = frames
 			end
 			
+			# Close the underlying stream.
 			def close
 				@stream.close
 			end
 			
+			# Flush the underlying stream.
 			def flush
 				@stream.flush
 			end
 			
 			# Read a frame from the underlying stream.
-			# @returns [Frame] 
+			# @returns [Frame] the frame read from the stream.
 			def read_frame(maximum_frame_size = MAXIMUM_ALLOWED_FRAME_SIZE)
 				# Read the header:
 				finished, flags, opcode = read_header
@@ -55,10 +57,12 @@ module Protocol
 				return frame
 			end
 			
+			# Write a frame to the underlying stream.
 			def write_frame(frame)
 				frame.write(@stream)
 			end
 			
+			# Read the header of the frame.
 			def read_header
 				if buffer = @stream.read(1) and buffer.bytesize == 1
 					return Frame.parse_header(buffer)

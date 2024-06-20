@@ -7,6 +7,7 @@ require_relative 'frame'
 
 module Protocol
 	module WebSocket
+		# Represents a pong frame that is sent or received by a WebSocket connection.
 		class PongFrame < Frame
 			OPCODE = 0xA
 			

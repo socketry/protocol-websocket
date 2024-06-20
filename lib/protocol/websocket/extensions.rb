@@ -65,6 +65,8 @@ module Protocol
 							@accepted << [klass, options]
 						end
 					end
+					
+					return @accepted
 				end
 				
 				def apply(connection)
@@ -112,14 +114,14 @@ module Protocol
 								# The extension is accepted and no further offers will be considered:
 								named.delete(name)
 								
-								yield header
+								yield header if block_given?
 								
 								@accepted << [klass, options]
 							end
 						end
 					end
 					
-					return headers
+					return @accepted
 				end
 				
 				def apply(connection)

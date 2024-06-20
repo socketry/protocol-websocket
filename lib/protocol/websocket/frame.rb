@@ -50,6 +50,7 @@ module Protocol
 				@opcode & 0x8 != 0
 			end
 			
+			# @returns [Boolean] if the frame contains data.
 			def data?
 				false
 			end

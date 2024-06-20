@@ -26,21 +26,26 @@ module Protocol
 				@writer = self
 			end
 			
-			# The framer which is used for reading and writing frames.
+			# @attribute [Framer] The framer which is used for reading and writing frames.
 			attr :framer
 			
-			# The (optional) mask which is used when generating frames.
+			# @attribte [String | Nil] The optional mask which is used when generating frames.
 			attr :mask
 			
-			# The allowed reserved bits:
+			# @attribute [Integer] The allowed reserved bits.
 			attr :reserved
 			
-			# Buffered frames which form part of a complete message.
+			# @attribute [Array(Frame)] Buffered frames which form part of a complete message.
 			attr_accessor :frames
 			
+			# @attribute [Object] The reader which is used to unpack frames into messages.
 			attr_accessor :reader
+			
+			# @attribute [Object] The writer which is used to pack messages into frames.
 			attr_accessor :writer
 			
+			# Reserve a bit in the reserved flags for an extension.
+			# @parameter bit [Integer] The bit to reserve, see {Frame::RESERVED} for more details.
 			def reserve!(bit)
 				if (@reserved & bit).zero?
 					raise ArgumentError, "Unable to use #{bit}!"
@@ -51,10 +56,12 @@ module Protocol
 				return true
 			end
 			
+			# Flush the underlying framer to ensure all buffered data is written to the connection.
 			def flush
 				@framer.flush
 			end
 			
+			# Transition the connection to the open state (the default for new connections).
 			def open!
 				@state = :open
 				
@@ -62,6 +69,7 @@ module Protocol
 			end
 			
 			# If not already closed, transition the connection to the closed state and send a close frame.
+			# Will try to send a close frame with the specified code and reason, but will ignore any errors that occur while sending.
 			def close!(...)
 				unless @state == :closed
 					@state = :closed
@@ -76,17 +84,19 @@ module Protocol
 				return self
 			end
 			
+			# @returns [Boolean] if the connection is in the closed state.
 			def closed?
 				@state == :closed
 			end
 			
-			# Immediately transition the connection to the closed state and close the underlying connection.
+			# Immediately transition the connection to the closed state *and* close the underlying connection.
 			def close(...)
 				close!(...)
 				
 				@framer.close
 			end
 			
+			# Read a frame from the framer, and apply it to the connection.
 			def read_frame
 				return nil if closed?
 				
@@ -109,12 +119,15 @@ module Protocol
 				raise
 			end
 			
+			# Write a frame to the framer.
+			# Note: This does not immediately write the frame to the connection, you must call {#flush} to ensure the frame is written.
 			def write_frame(frame)
 				@framer.write_frame(frame)
 				
 				return frame
 			end
 			
+			# Receive a text frame from the connection.
 			def receive_text(frame)
 				if @frames.empty?
 					@frames << frame
@@ -123,6 +136,7 @@ module Protocol
 				end
 			end
 			
+			# Receive a binary frame for the connection.
 			def receive_binary(frame)
 				if @frames.empty?
 					@frames << frame
@@ -131,6 +145,7 @@ module Protocol
 				end
 			end
 			
+			# Receive a continuation frame for the connection.
 			def receive_continuation(frame)
 				if @frames.any?
 					@frames << frame
@@ -138,7 +153,8 @@ module Protocol
 					raise ProtocolError, "Received unexpected continuation!"
 				end
 			end
-					
+			
+			# Receive a close frame from the connection.
 			def receive_close(frame)
 				code, reason = frame.unpack
 				
@@ -150,6 +166,8 @@ module Protocol
 				end
 			end
 			
+			# Send a ping frame with the specified data.
+			# @parameter data [String] The data to send in the ping frame.
 			def send_ping(data = "")
 				if @state != :closed
 					frame = PingFrame.new(mask: @mask)
@@ -161,6 +179,7 @@ module Protocol
 				end
 			end
 			
+			# Receive a ping frame from the connection.
 			def receive_ping(frame)
 				if @state != :closed
 					write_frame(frame.reply(mask: @mask))
@@ -169,14 +188,19 @@ module Protocol
 				end
 			end
 			
+			# Receive a pong frame from the connection. By default, this method does nothing.
 			def receive_pong(frame)
 				# Ignore.
 			end
 			
+			# Receive a frame that is not a control frame. By default, this method raises a {ProtocolError}.
 			def receive_frame(frame)
 				raise ProtocolError, "Unhandled frame: #{frame}"
 			end
 			
+			# Pack a text frame with the specified buffer. This is used by the {#writer} interface.
+			# @parameter buffer [String] The text to pack into the frame.
+			# @returns [TextFrame] The packed frame.
 			def pack_text_frame(buffer, **options)
 				frame = TextFrame.new(mask: @mask)
 				frame.pack(buffer)
@@ -184,10 +208,15 @@ module Protocol
 				return frame
 			end
 			
+			# Send a text frame with the specified buffer.
+			# @parameter buffer [String] The text to send.
 			def send_text(buffer, **options)
 				write_frame(@writer.pack_text_frame(buffer, **options))
 			end
 			
+			# Pack a binary frame with the specified buffer. This is used by the {#writer} interface.
+			# @parameter buffer [String] The binary data to pack into the frame.
+			# @returns [BinaryFrame] The packed frame.
 			def pack_binary_frame(buffer, **options)
 				frame = BinaryFrame.new(mask: @mask)
 				frame.pack(buffer)
@@ -195,11 +224,15 @@ module Protocol
 				return frame
 			end
 			
+			# Send a binary frame with the specified buffer.
+			# @parameter buffer [String] The binary data to send.
 			def send_binary(buffer, **options)
 				write_frame(@writer.pack_binary_frame(buffer, **options))
 			end
 			
 			# Send a control frame with data containing a specified control sequence to begin the closing handshake. Does not close the connection, until the remote end responds with a close frame.
+			# @parameter code [Integer] The close code to send.
+			# @parameter reason [String] The reason for closing the connection.
 			def send_close(code = Error::NO_ERROR, reason = "")
 				frame = CloseFrame.new(mask: @mask)
 				frame.pack(code, reason)
@@ -223,12 +256,15 @@ module Protocol
 				message.send(self, **options)
 			end
 			
-			# The default implementation for reading a message buffer.
+			# The default implementation for reading a message buffer. This is used by the {#reader} interface.
 			def unpack_frames(frames)
 				frames.map(&:unpack).join("")
 			end
 			
-			# Read a message from the connection.
+			# Read a message from the connection. If an error occurs while reading the message, the connection will be closed.
+			#
+			# If the message is fragmented, this method will buffer the frames until a complete message is received.
+			#
 			# @returns message [Message] The received message.
 			def read(**options)
 				@framer.flush
