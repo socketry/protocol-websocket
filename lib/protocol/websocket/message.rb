@@ -56,13 +56,14 @@ module Protocol
 			def to_h(...)
 				parse(...).to_h
 			end
+			
+			def send(connection, **options)
+				connection.send_text(@buffer, **options)
+			end
 		end
 		
 		# Represents a text message that can be sent or received over a WebSocket connection.
 		class TextMessage < Message
-			def send(connection, **options)
-				connection.send_text(@buffer, **options)
-			end
 		end
 		
 		# Represents a binary message that can be sent or received over a WebSocket connection.
