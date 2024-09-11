@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2023, by Samuel Williams.
 
-require 'protocol/websocket/pong_frame'
+require "protocol/websocket/pong_frame"
 
 describe Protocol::WebSocket::PongFrame do
 	let(:frame) {subject.new}
@@ -16,7 +16,7 @@ describe Protocol::WebSocket::PongFrame do
 		expect(frame).to be(:control?)
 	end
 	
-	with '#apply' do
+	with "#apply" do
 		let(:connection) {Protocol::WebSocket::Connection.new(nil)}
 		
 		it "can apply itself to a connection" do

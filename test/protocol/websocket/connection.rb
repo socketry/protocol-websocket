@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2023, by Samuel Williams.
+# Copyright, 2019-2024, by Samuel Williams.
 # Copyright, 2019, by Soumya.
 
-require 'socket'
-require 'protocol/websocket/connection'
+require "socket"
+require "protocol/websocket/connection"
 
 describe Protocol::WebSocket::Connection do
 	let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
@@ -15,7 +15,7 @@ describe Protocol::WebSocket::Connection do
 	
 	let(:connection) {subject.new(server)}
 	
-	with '#close!' do
+	with "#close!" do
 		it "can manipulate open/closed state" do
 			expect(connection).not.to be(:closed?)
 			connection.close!
@@ -77,7 +77,7 @@ describe Protocol::WebSocket::Connection do
 		end
 	end
 	
-	with '#reserve!' do
+	with "#reserve!" do
 		let(:bit) {Protocol::WebSocket::Frame::RSV1}
 		
 		it "can reserve a bit" do
@@ -167,7 +167,7 @@ describe Protocol::WebSocket::Connection do
 		end
 	end
 	
-	with '#read_frame' do
+	with "#read_frame" do
 		it "rejects frames with reserved flags set" do
 			frame = Protocol::WebSocket::TextFrame.new
 			frame.pack "Hello World!"
@@ -203,7 +203,7 @@ describe Protocol::WebSocket::Connection do
 		end
 	end
 	
-	with '#receive_frame' do
+	with "#receive_frame" do
 		let(:frame) {Protocol::WebSocket::Frame.new}
 		
 		it "rejects unhandled frames" do
@@ -213,7 +213,7 @@ describe Protocol::WebSocket::Connection do
 		end
 	end
 	
-	with '#receive_close' do
+	with "#receive_close" do
 		it "does not close the underlying connection" do
 			close_frame = Protocol::WebSocket::CloseFrame.new
 			close_frame.pack
@@ -234,7 +234,7 @@ describe Protocol::WebSocket::Connection do
 		end
 	end
 	
-	with '#send_ping' do
+	with "#send_ping" do
 		it "can send a ping and receive a pong" do
 			connection.send_ping
 			frame = client.read_frame
@@ -324,7 +324,7 @@ describe Protocol::WebSocket::Connection do
 		end
 	end
 	
-	with '#write' do
+	with "#write" do
 		it "can write strings (legacy text message)" do
 			connection.write("Hello World!")
 			

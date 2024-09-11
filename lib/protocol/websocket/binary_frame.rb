@@ -4,8 +4,8 @@
 # Copyright, 2019-2024, by Samuel Williams.
 # Copyright, 2021, by Aurora Nockert.
 
-require_relative 'frame'
-require_relative 'message'
+require_relative "frame"
+require_relative "message"
 
 module Protocol
 	module WebSocket

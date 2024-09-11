@@ -3,9 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require_relative 'compression/constants'
-require_relative 'compression/inflate'
-require_relative 'compression/deflate'
+require_relative "compression/constants"
+require_relative "compression/inflate"
+require_relative "compression/deflate"
 
 module Protocol
 	module WebSocket
@@ -22,13 +22,13 @@ module Protocol
 					when 8..15
 						header << "client_max_window_bits=#{client_max_window_bits}"
 					when true
-						header << 'client_max_window_bits'
+						header << "client_max_window_bits"
 					else
 						raise ArgumentError, "Invalid local maximum window bits!"
 					end
 					
 					if client_no_context_takeover
-						header << 'client_no_context_takeover'
+						header << "client_no_context_takeover"
 					end
 					
 					case server_max_window_bits
@@ -41,7 +41,7 @@ module Protocol
 					end
 					
 					if server_no_context_takeover
-						header << 'server_no_context_takeover'
+						header << "server_no_context_takeover"
 					end
 					
 					return header

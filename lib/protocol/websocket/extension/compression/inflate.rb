@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2022-2023, by Samuel Williams.
 
-require_relative 'constants'
+require_relative "constants"
 
 module Protocol
 	module WebSocket
@@ -26,7 +26,7 @@ module Protocol
 						)
 					end
 					
-					TRAILER = [0x00, 0x00, 0xff, 0xff].pack('C*')
+					TRAILER = [0x00, 0x00, 0xff, 0xff].pack("C*")
 					
 					def initialize(parent, context_takeover: true, window_bits: 15)
 						@parent = parent

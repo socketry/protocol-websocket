@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require_relative 'frame'
+require_relative "frame"
 
 module Protocol
 	module WebSocket

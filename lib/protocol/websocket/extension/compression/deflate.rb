@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2022-2023, by Samuel Williams.
 
-require_relative 'constants'
+require_relative "constants"
 
 module Protocol
 	module WebSocket

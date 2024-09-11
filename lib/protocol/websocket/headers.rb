@@ -3,25 +3,25 @@
 # Released under the MIT License.
 # Copyright, 2019-2023, by Samuel Williams.
 
-require 'digest/sha1'
-require 'securerandom'
+require "digest/sha1"
+require "securerandom"
 
 module Protocol
 	module WebSocket
 		module Headers
 			# The protocol string used for the `upgrade:` header (HTTP/1) and `:protocol` pseudo-header (HTTP/2).
-			PROTOCOL = "websocket".freeze
+			PROTOCOL = "websocket"
 			
 			# The WebSocket protocol header, used for application level protocol negotiation.
-			SEC_WEBSOCKET_PROTOCOL = 'sec-websocket-protocol'.freeze
+			SEC_WEBSOCKET_PROTOCOL = "sec-websocket-protocol"
 			
 			# The WebSocket version header. Used for negotiating binary protocol version.
-			SEC_WEBSOCKET_VERSION = 'sec-websocket-version'.freeze
+			SEC_WEBSOCKET_VERSION = "sec-websocket-version"
 			
-			SEC_WEBSOCKET_KEY = 'sec-websocket-key'.freeze
-			SEC_WEBSOCKET_ACCEPT = 'sec-websocket-accept'.freeze
+			SEC_WEBSOCKET_KEY = "sec-websocket-key"
+			SEC_WEBSOCKET_ACCEPT = "sec-websocket-accept"
 			
-			SEC_WEBSOCKET_EXTENSIONS = 'sec-websocket-extensions'.freeze
+			SEC_WEBSOCKET_EXTENSIONS = "sec-websocket-extensions"
 			
 			module Nounce
 				GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"

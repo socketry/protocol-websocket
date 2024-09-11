@@ -3,8 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require_relative 'extension/compression'
-require_relative 'headers'
+require_relative "extension/compression"
+require_relative "headers"
 
 module Protocol
 	module WebSocket
@@ -16,7 +16,7 @@ module Protocol
 					name, *arguments = header.split(/\s*;\s*/)
 					
 					arguments = arguments.map do |argument|
-						argument.split('=', 2)
+						argument.split("=", 2)
 					end
 					
 					yield name, arguments

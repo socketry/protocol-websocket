@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2024, by Samuel Williams.
 
-require_relative 'coder/json'
+require_relative "coder/json"
 
 module Protocol
 	module WebSocket

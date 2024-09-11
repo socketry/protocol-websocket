@@ -3,8 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require 'protocol/websocket/a_websocket_frame'
-require 'protocol/websocket/text_frame'
+require "protocol/websocket/a_websocket_frame"
+require "protocol/websocket/text_frame"
 
 describe Protocol::WebSocket::TextFrame do
 	let(:frame) {subject.new}

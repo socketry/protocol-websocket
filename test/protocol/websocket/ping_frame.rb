@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
-require 'protocol/websocket/ping_frame'
+require "protocol/websocket/ping_frame"
 
 describe Protocol::WebSocket::PingFrame do
 	let(:frame) {subject.new}

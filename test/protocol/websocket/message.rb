@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2023-2024, by Samuel Williams.
 
-require 'protocol/websocket/message'
+require "protocol/websocket/message"
 
 describe Protocol::WebSocket::Message do
 	let(:buffer) {"Hello World!"}

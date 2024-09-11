@@ -3,10 +3,10 @@
 # Released under the MIT License.
 # Copyright, 2019-2023, by Samuel Williams.
 
-require 'protocol/websocket/headers'
+require "protocol/websocket/headers"
 
 describe Protocol::WebSocket::Headers::Nounce do
-	with '#generate_key' do
+	with "#generate_key" do
 		let(:key) {subject.generate_key}
 		
 		it "can generate valid key length" do
@@ -14,7 +14,7 @@ describe Protocol::WebSocket::Headers::Nounce do
 		end
 	end
 	
-	with '#accept_digest' do
+	with "#accept_digest" do
 		# Taken from https://tools.ietf.org/html/rfc6455#section-1.2
 		let(:key) {"dGhlIHNhbXBsZSBub25jZQ=="}
 		let(:digest) {subject.accept_digest(key)}

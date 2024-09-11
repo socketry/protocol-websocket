@@ -5,7 +5,7 @@
 # Copyright, 2019, by Soumya.
 # Copyright, 2021, by Aurora Nockert.
 
-require_relative 'error'
+require_relative "error"
 
 module Protocol
 	module WebSocket
@@ -178,10 +178,10 @@ module Protocol
 				
 				if length == 126
 					buffer = stream.read(2) or raise EOFError, "Could not read length!"
-					length = buffer.unpack('n').first
+					length = buffer.unpack("n").first
 				elsif length == 127
 					buffer = stream.read(8) or raise EOFError, "Could not read length!"
-					length = buffer.unpack('Q>').first
+					length = buffer.unpack("Q>").first
 				end
 				
 				if length > maximum_frame_size
@@ -223,12 +223,12 @@ module Protocol
 				buffer << [
 					(@finished ? 0b1000_0000 : 0) | (@flags << 4) | @opcode,
 					(@mask ? 0b1000_0000 : 0) | short_length,
-				].pack('CC')
+				].pack("CC")
 				
 				if short_length == 126
-					buffer << [@length].pack('n')
+					buffer << [@length].pack("n")
 				elsif short_length == 127
-					buffer << [@length].pack('Q>')
+					buffer << [@length].pack("Q>")
 				end
 				
 				buffer << @mask if @mask

@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2023, by Samuel Williams.
 
-require 'protocol/websocket/close_frame'
+require "protocol/websocket/close_frame"
 
 describe Protocol::WebSocket::CloseFrame do
 	let(:frame) {subject.new}
@@ -16,7 +16,7 @@ describe Protocol::WebSocket::CloseFrame do
 		expect(frame).to be(:control?)
 	end
 	
-	with '#pack' do
+	with "#pack" do
 		it "can pack a close frame with no error and a message" do
 			frame.pack(1000, "Hello World")
 			
@@ -32,7 +32,7 @@ describe Protocol::WebSocket::CloseFrame do
 		end
 	end
 	
-	with '#unpack' do
+	with "#unpack" do
 		it "can unpack a close frame with a missing error and message" do
 			frame.pack
 			

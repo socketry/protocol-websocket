@@ -3,12 +3,12 @@
 # Released under the MIT License.
 # Copyright, 2022-2024, by Samuel Williams.
 
-require 'protocol/websocket/extension/compression'
+require "protocol/websocket/extension/compression"
 
-require 'async/websocket'
-require 'async/websocket/adapters/http'
-require 'sus/fixtures/async/reactor_context'
-require 'sus/fixtures/async/http/server_context'
+require "async/websocket"
+require "async/websocket/adapters/http"
+require "sus/fixtures/async/reactor_context"
+require "sus/fixtures/async/http/server_context"
 
 describe Protocol::WebSocket::Extension::Compression do
 	include Sus::Fixtures::Async::HTTP::ServerContext
@@ -36,7 +36,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		WebSocketServer.new(self)
 	end
 	
-	with 'no extensions' do
+	with "no extensions" do
 		it "can send and receive a text message" do
 			Async::WebSocket::Client.connect(client_endpoint, extensions: nil) do |client|
 				expect(client.writer).not.to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
@@ -50,7 +50,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 	end
 	
-	with 'default extensions' do
+	with "default extensions" do
 		it "can send and receive a text message using compression" do
 			Async::WebSocket::Client.connect(client_endpoint) do |client|
 				expect(client.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
@@ -108,7 +108,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 	end
 	
-	with 'permessage-deflate; true; 12; false; 9' do
+	with "permessage-deflate; true; 12; false; 9" do
 		let(:extensions) {::Protocol::WebSocket::Extensions::Client.new([
 			[Protocol::WebSocket::Extension::Compression, {
 				# client.writer.context_takeover = false; server.reader.context_takeover = false;
@@ -156,7 +156,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 	end
 	
-	with 'permessage-deflate; false; 8; true; 13' do
+	with "permessage-deflate; false; 8; true; 13" do
 		let(:extensions) {::Protocol::WebSocket::Extensions::Client.new([
 			[Protocol::WebSocket::Extension::Compression, {
 				# Absence of this extension parameter in an extension negotiation
@@ -214,7 +214,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 	end
 	
-	with '#offer' do
+	with "#offer" do
 		it "fails if local maximum window bits is out of bounds" do
 			expect do
 				subject.offer(client_max_window_bits: 20)
@@ -228,7 +228,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 	end
 	
-	with '#negotiate' do
+	with "#negotiate" do
 		it "fails if invalid option is given" do
 			expect do
 				subject.negotiate(["foo", "bar"])
@@ -236,7 +236,7 @@ describe Protocol::WebSocket::Extension::Compression do
 		end
 	end
 	
-	with '#accept' do
+	with "#accept" do
 		it "fails if invalid option is given" do
 			expect do
 				subject.accept(["foo", "bar"])

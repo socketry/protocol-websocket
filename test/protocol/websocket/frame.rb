@@ -3,12 +3,12 @@
 # Released under the MIT License.
 # Copyright, 2023, by Samuel Williams.
 
-require 'protocol/websocket/frame'
+require "protocol/websocket/frame"
 
 describe Protocol::WebSocket::Frame do
 	let(:frame) {subject.new}
 	
-	with '#pack' do
+	with "#pack" do
 		it "rejects excessively large frames" do
 			data = String.new
 			expect(data).to receive(:bytesize).and_return(2**64)
@@ -19,7 +19,7 @@ describe Protocol::WebSocket::Frame do
 		end
 	end
 	
-	with '#apply' do
+	with "#apply" do
 		let(:connection) {Protocol::WebSocket::Connection.new(nil)}
 		
 		it "can apply itself to a connection" do
@@ -28,7 +28,7 @@ describe Protocol::WebSocket::Frame do
 		end
 	end
 	
-	with '.parse_header' do
+	with ".parse_header" do
 		it "rejects reserved non-control opcodes" do
 			expect do
 				subject.parse_header("\x03\x00")
@@ -42,7 +42,7 @@ describe Protocol::WebSocket::Frame do
 		end
 	end
 	
-	with '.read' do
+	with ".read" do
 		it "rejects invalid control frame payload length" do
 			stream = StringIO.new("\xFF")
 			
@@ -76,7 +76,7 @@ describe Protocol::WebSocket::Frame do
 		end
 	end
 	
-	with '.write' do
+	with ".write" do
 		let(:stream) {StringIO.new}
 		
 		it "fails with invalid payload length" do

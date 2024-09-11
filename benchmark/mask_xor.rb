@@ -24,26 +24,26 @@ def mask_xor_string(data, mask)
 	return result
 end
 
-require 'benchmark/ips'
-require 'securerandom'
+require "benchmark/ips"
+require "securerandom"
 
 MASK = SecureRandom.bytes(4)
 DATA = SecureRandom.bytes(1024 * 1024)
 
 Benchmark.ips do |x|
-  # Configure the number of seconds used during
-  # the warmup phase (default 2) and calculation phase (default 5)
-  x.config(:time => 5, :warmup => 2)
+	# Configure the number of seconds used during
+	# the warmup phase (default 2) and calculation phase (default 5)
+	x.config(:time => 5, :warmup => 2)
 
-  # These parameters can also be configured this way
-  x.time = 5
-  x.warmup = 2
+	# These parameters can also be configured this way
+	x.time = 5
+	x.warmup = 2
 
 	x.report("IO::Buffer") {mask_xor_buffer(DATA, MASK)}
 	x.report("String") {mask_xor_string(DATA, MASK)}
 
-  # Compare the iterations per second of the various reports!
-  x.compare!
+	# Compare the iterations per second of the various reports!
+	x.compare!
 end
 
 # Warming up --------------------------------------

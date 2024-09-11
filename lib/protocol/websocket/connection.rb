@@ -5,8 +5,7 @@
 # Copyright, 2019, by William T. Nelson.
 # Copyright, 2021, by Aurora Nockert.
 
-require_relative 'framer'
-require 'securerandom'
+require_relative "framer"
 
 module Protocol
 	module WebSocket
@@ -267,7 +266,7 @@ module Protocol
 			def write(message, **options)
 				case message
 				when String
-				# This is a compatibility shim for the previous implementation. We may want to eventually deprecate this use case... or maybe it's convenient enough to leave it around.
+					# This is a compatibility shim for the previous implementation. We may want to eventually deprecate this use case... or maybe it's convenient enough to leave it around.
 					if message.encoding == Encoding::UTF_8
 						return send_text(message, **options)
 					else

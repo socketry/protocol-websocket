@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2022-2023, by Samuel Williams.
 
-require 'protocol/websocket/extensions'
+require "protocol/websocket/extensions"
 
 describe Protocol::WebSocket::Extensions do
 	it "can parse headers" do

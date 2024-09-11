@@ -3,12 +3,12 @@
 # Released under the MIT License.
 # Copyright, 2019-2024, by Samuel Williams.
 
-require 'socket'
+require "socket"
 
 module Protocol
 	module WebSocket
 		AWebSocketFrame = Sus::Shared("a websocket frame") do
-			require 'protocol/websocket/framer'
+			require "protocol/websocket/framer"
 			
 			let(:sockets) {Socket.pair(Socket::PF_UNIX, Socket::SOCK_STREAM)}
 			
