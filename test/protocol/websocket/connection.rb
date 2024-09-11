@@ -31,6 +31,38 @@ describe Protocol::WebSocket::Connection do
 		end
 	end
 	
+	with "#close_write" do
+		it "can close the write side of the connection" do
+			connection.close_write
+			
+			frame = client.read_frame
+			expect(frame).to be_a(Protocol::WebSocket::CloseFrame)
+			
+			client.write_frame(frame.reply)
+			client.close
+			
+			frame = connection.read_frame
+			expect(frame).to be_a(Protocol::WebSocket::CloseFrame)
+			
+			expect(connection).to be(:closed?)
+		end
+	end
+	
+	with "#shutdown" do
+		it "can shutdown the connection" do
+			data_frame = Protocol::WebSocket::TextFrame.new(true).tap do |frame|
+				frame.pack("Hello World!")
+			end
+			client.write_frame(data_frame)
+			
+			close_frame = Protocol::WebSocket::CloseFrame.new.tap(&:pack)
+			client.write_frame(close_frame)
+			
+			connection.shutdown
+			expect(connection).to be(:closed?)
+		end
+	end
+	
 	it "doesn't generate mask by default" do
 		expect(connection.mask).to be == nil
 	end

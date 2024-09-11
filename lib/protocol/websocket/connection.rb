@@ -89,11 +89,32 @@ module Protocol
 				@state == :closed
 			end
 			
-			# Immediately transition the connection to the closed state *and* close the underlying connection.
+			# Immediately transition the connection to the closed state *and* close the underlying connection. Any data not yet read will be lost.
 			def close(...)
 				close!(...)
 				
 				@framer.close
+			end
+			
+			# Close the connection gracefully, sending a close frame with the specified error code and reason. If an error occurs while sending the close frame, the connection will be closed immediately. You may continue to read data from the connection after calling this method, but you should not write any more data.
+			#
+			# @parameter error [Error | Nil] The error that occurred, if any.
+			def close_write(error = nil)
+				if error
+					send_close(Error::INTERNAL_ERROR, error.message)
+				else
+					send_close
+				end
+			end
+			
+			# Close the connection gracefully. This will send a close frame and wait for the remote end to respond with a close frame. Any data received after the close frame is sent will be ignored. If you want to process this data, use {#close_write} instead, and read the data before calling {#close}.
+			def shutdown
+				send_close unless @state == :closed
+				
+				# `read_frame` will return nil after receiving a close frame:
+				while read_frame
+					# Drain the connection.
+				end
 			end
 			
 			# Read a frame from the framer, and apply it to the connection.

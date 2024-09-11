@@ -19,10 +19,24 @@ module Protocol
 			# Indicates that an endpoint is terminating the connection due to a protocol error.
 			PROTOCOL_ERROR = 1002
 			
-			# Indicates that an endpoint is terminating the connection because it has received a type of data it cannot accept.
+			# Indicates that an endpoint is terminating the connection because it has received a type of data it cannot accept. (e.g., an endpoint that understands only text data MAY send this if it receives a binary message).
 			INVALID_DATA = 1003
 			
-			# There are other status codes but most of them are "implementation specific".
+			
+			# Indicates that an endpoint is terminating the connection because it has received data within a message that was not consistent with the type of the message (e.g., non-UTF-8 data within a text message).
+			INVALID_PAYLOAD = 1007
+			
+			# Indicates that an endpoint is terminating the connection because it has received a message that violates its policy. This is a generic status code that can be returned when there is no other more suitable status code (e.g., 1003 or 1009) or if there is a need to hide specific details about the policy.
+			POLICY_VIOLATION = 1008
+			
+			# Indicates that an endpoint is terminating the connection because it has received a message that is too big for it to process.
+			MESSAGE_TOO_LARGE = 1009
+			
+			# Indicates that an endpoint (client) is terminating the connection because it has expected the server to negotiate one or more extension, but the server didn't return them in the response message of the WebSocket handshake. The list of extensions that are needed should appear in the /reason/ part of the Close frame. Note that this status code is not used by the server, because it can fail the WebSocket handshake instead.
+			MISSING_EXTENSION = 1010
+			
+			# Indicates that a server is terminating the connection because it encountered an unexpected condition that prevented it from fulfilling the request.
+			INTERNAL_ERROR = 1011
 		end
 		
 		# Raised by stream or connection handlers, results in GOAWAY frame which signals termination of the current connection. You *cannot* recover from this exception, or any exceptions subclassed from it.

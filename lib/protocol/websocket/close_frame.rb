@@ -59,6 +59,14 @@ module Protocol
 				end
 			end
 			
+			# Generate a suitable reply.
+			# @returns [CloseFrame]
+			def reply(code = Error::NO_ERROR, reason = "")
+				frame = CloseFrame.new
+				frame.pack(code, reason)
+				return frame
+			end
+			
 			# Apply this frame to the specified connection.
 			def apply(connection)
 				connection.receive_close(self)
