@@ -12,7 +12,7 @@ module Protocol
 		class Message
 			# Create a new message from a buffer.
 			# @attribute buffer [String] The message buffer.
-			def initialize(buffer)
+			def initialize(buffer = "")
 				@buffer = buffer
 			end
 			
