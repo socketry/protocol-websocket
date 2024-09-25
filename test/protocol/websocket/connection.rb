@@ -336,6 +336,7 @@ describe Protocol::WebSocket::Connection do
 			connection.write("Hello World!".b)
 			
 			frame = client.read_frame
+			expect(frame).to be_a(Protocol::WebSocket::BinaryFrame)
 			expect(frame.unpack).to be == "Hello World!".b
 		end
 		
@@ -344,6 +345,16 @@ describe Protocol::WebSocket::Connection do
 			connection.write(message)
 			
 			frame = client.read_frame
+			expect(frame).to be_a(Protocol::WebSocket::TextFrame)
+			expect(frame.unpack).to be == "Hello World!"
+		end
+		
+		it "can send ping mmessages" do
+			message = Protocol::WebSocket::PingMessage.new("Hello World!")
+			connection.write(message)
+			
+			frame = client.read_frame
+			expect(frame).to be_a(Protocol::WebSocket::PingFrame)
 			expect(frame.unpack).to be == "Hello World!"
 		end
 	end

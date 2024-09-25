@@ -72,5 +72,12 @@ module Protocol
 				connection.send_binary(@buffer, **options)
 			end
 		end
+		
+		# Represents a ping message that can be sent over a WebSocket connection.
+		class PingMessage < Message
+			def send(connection)
+				connection.send_ping(@buffer)
+			end
+		end
 	end
 end
