@@ -29,11 +29,9 @@ module Protocol
 		
 		# Wraps an underlying {Async::IO::Stream} for reading and writing binary data into structured frames.
 		class Framer
-			def initialize(stream, frames = FRAMES, requires_masking: false)
+			def initialize(stream, frames = FRAMES)
 				@stream = stream
 				@frames = frames
-				
-				@requires_masking = requires_masking
 			end
 			
 			# Close the underlying stream.
@@ -55,10 +53,6 @@ module Protocol
 				# Read the frame:
 				klass = @frames[opcode] || Frame
 				frame = klass.read(finished, flags, opcode, @stream, maximum_frame_size)
-				
-				if @requires_masking and !frame.mask
-					raise ProtocolError, "Received unmasked frame but requires masking!"
-				end
 				
 				return frame
 			end
