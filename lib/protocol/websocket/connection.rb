@@ -28,7 +28,7 @@ module Protocol
 			# @attribute [Framer] The framer which is used for reading and writing frames.
 			attr :framer
 			
-			# @attribte [String | Nil] The optional mask which is used when generating frames.
+			# @attribute [String | Boolean | Nil] The optional mask which is used when generating frames.
 			attr :mask
 			
 			# @attribute [Integer] The allowed reserved bits.
