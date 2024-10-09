@@ -15,7 +15,7 @@ module Protocol
 			# Generate a suitable reply.
 			# @returns [PongFrame]
 			def reply(**options)
-				PongFrame.new(true, self.unpack, **options)
+				PongFrame.new(true, **options).pack(self.unpack)
 			end
 			
 			# Apply this frame to the specified connection.

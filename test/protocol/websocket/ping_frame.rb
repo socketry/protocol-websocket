@@ -15,4 +15,16 @@ describe Protocol::WebSocket::PingFrame do
 	it "is a control frame" do
 		expect(frame).to be(:control?)
 	end
+	
+	with "#reply" do
+		it "can generate an appropriately masked reply" do
+			frame.pack("Hello, World!")
+			
+			reply = frame.reply(mask: "mask")
+			
+			expect(reply.mask).to be == "mask"
+			expect(reply.payload).not.to be == "Hello, World!"
+			expect(reply.unpack).to be == "Hello, World!"
+		end
+	end
 end
