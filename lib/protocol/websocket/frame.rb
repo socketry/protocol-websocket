@@ -23,6 +23,7 @@ module Protocol
 			# @parameter mask [Boolean | String] An optional 4-byte string which is used to mask the payload.
 			def initialize(finished = true, payload = nil, flags: 0, opcode: self.class::OPCODE, mask: false)
 				if mask == true
+					# Generate a unique mask for each frame:
 					mask = SecureRandom.bytes(4)
 				end
 				
