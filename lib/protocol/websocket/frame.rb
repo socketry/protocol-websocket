@@ -185,7 +185,7 @@ module Protocol
 				end
 				
 				if length > maximum_frame_size
-					raise ProtocolError, "Invalid payload length: #{@length} > #{maximum_frame_size}!"
+					raise ProtocolError, "Invalid payload length: #{length} > #{maximum_frame_size}!"
 				end
 				
 				if mask
@@ -195,7 +195,7 @@ module Protocol
 				payload = stream.read(length) or raise EOFError, "Could not read payload!"
 				
 				if payload.bytesize != length
-					raise EOFError, "Incorrect payload length: #{@length} != #{payload.bytesize}!"
+					raise EOFError, "Incorrect payload length: #{length} != #{payload.bytesize}!"
 				end
 				
 				return self.new(finished, payload, flags: flags, opcode: opcode, mask: mask)
