@@ -64,7 +64,7 @@ describe Protocol::WebSocket::Frame do
 			
 			expect do
 				subject.read(false, 0, 0, stream, 124)
-			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Invalid payload length/)
+			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Invalid payload length: \d+ > \d*!/)
 		end
 		
 		it "rejects frames with truncated payload" do
@@ -72,7 +72,7 @@ describe Protocol::WebSocket::Frame do
 			
 			expect do
 				subject.read(false, 0, 0, stream, 128)
-			end.to raise_exception(EOFError, message: be =~ /Incorrect payload length/)
+			end.to raise_exception(EOFError, message: be =~ /Incorrect payload length: \d+ != \d+!/)
 		end
 	end
 	
