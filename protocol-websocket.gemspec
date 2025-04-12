@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
 	spec.version = Protocol::WebSocket::VERSION
 	
 	spec.summary = "A low level implementation of the WebSocket protocol."
-	spec.authors = ["Samuel Williams", "Aurora Nockert", "Soumya", "Olle Jonsson", "William T. Nelson"]
+	spec.authors = ["Samuel Williams", "Aurora Nockert", "Soumya", "Olle Jonsson", "Taleh Zaliyev", "William T. Nelson"]
 	spec.license = "MIT"
 	
 	spec.cert_chain  = ["release.cert"]

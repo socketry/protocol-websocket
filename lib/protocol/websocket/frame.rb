@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2024, by Samuel Williams.
+# Copyright, 2019-2025, by Samuel Williams.
 # Copyright, 2019, by Soumya.
 # Copyright, 2021, by Aurora Nockert.
+# Copyright, 2025, by Taleh Zaliyev.
 
 require_relative "error"
 
