@@ -5,6 +5,6 @@
 
 module Protocol
 	module WebSocket
-		VERSION = "0.20.1"
+		VERSION = "0.20.2"
 	end
 end
