@@ -173,15 +173,15 @@ module Protocol
 			# @returns [Array] A tuple of `[finished, flags, opcode]`.
 			# @raises [ProtocolError] If the opcode is a reserved non-control or control opcode.
 			def self.parse_header(buffer)
-				byte = buffer.unpack("C").first
+				byte = buffer.getbyte(0)
 				
 				finished = (byte & 0b1000_0000 != 0)
 				flags = (byte & 0b0111_0000) >> 4
 				opcode = byte & 0b0000_1111
 				
-				if (0x3 .. 0x7).include?(opcode)
+				if opcode >= 0x3 && opcode <= 0x7
 					raise ProtocolError, "Non-control opcode = #{opcode} is reserved!"
-				elsif (0xB .. 0xF).include?(opcode)
+				elsif opcode >= 0xB
 					raise ProtocolError, "Control opcode = #{opcode} is reserved!"
 				end
 				
@@ -197,12 +197,14 @@ module Protocol
 			# @returns [Frame] The fully read and populated frame.
 			# @raises [ProtocolError] If the frame violates protocol constraints.
 			# @raises [EOFError] If the stream ends unexpectedly.
-			def self.read(finished, flags, opcode, stream, maximum_frame_size)
-				buffer = stream.read(1) or raise EOFError, "Could not read header!"
-				byte = buffer.unpack("C").first
+			def self.read(finished, flags, opcode, stream, maximum_frame_size, second_byte = nil)
+				unless second_byte
+					buffer = stream.read(1) or raise EOFError, "Could not read header!"
+					second_byte = buffer.getbyte(0)
+				end
 				
-				mask = (byte & 0b1000_0000 != 0)
-				length = byte & 0b0111_1111
+				mask = (second_byte & 0b1000_0000 != 0)
+				length = second_byte & 0b0111_1111
 				
 				if opcode & 0x8 != 0
 					if length > 125
@@ -213,19 +215,29 @@ module Protocol
 				end
 				
 				if length == 126
-					buffer = stream.read(2) or raise EOFError, "Could not read length!"
-					length = buffer.unpack("n").first
+					if mask
+						buffer = stream.read(6) or raise EOFError, "Could not read length and mask!"
+						length = buffer.unpack1("n")
+						mask = buffer.byteslice(2, 4)
+					else
+						buffer = stream.read(2) or raise EOFError, "Could not read length!"
+						length = buffer.unpack1("n")
+					end
 				elsif length == 127
-					buffer = stream.read(8) or raise EOFError, "Could not read length!"
-					length = buffer.unpack("Q>").first
+					if mask
+						buffer = stream.read(12) or raise EOFError, "Could not read length and mask!"
+						length = buffer.unpack1("Q>")
+						mask = buffer.byteslice(8, 4)
+					else
+						buffer = stream.read(8) or raise EOFError, "Could not read length!"
+						length = buffer.unpack1("Q>")
+					end
+				elsif mask
+					mask = stream.read(4) or raise EOFError, "Could not read mask!"
 				end
 				
 				if length > maximum_frame_size
 					raise ProtocolError, "Invalid payload length: #{length} > #{maximum_frame_size}!"
-				end
-				
-				if mask
-					mask = stream.read(4) or raise EOFError, "Could not read mask!"
 				end
 				
 				payload = stream.read(length) or raise EOFError, "Could not read payload!"

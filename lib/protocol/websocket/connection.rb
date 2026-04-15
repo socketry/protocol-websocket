@@ -281,7 +281,11 @@ module Protocol
 			
 			# The default implementation for reading a message buffer. This is used by the {#reader} interface.
 			def unpack_frames(frames)
-				frames.map(&:unpack).join("")
+				if frames.size == 1
+					frames[0].unpack
+				else
+					frames.map(&:unpack).join("")
+				end
 			end
 			
 			# Read a message from the connection. If an error occurs while reading the message, the connection will be closed.

@@ -50,12 +50,26 @@ module Protocol
 			# Read a frame from the underlying stream.
 			# @returns [Frame] the frame read from the stream.
 			def read_frame(maximum_frame_size = MAXIMUM_ALLOWED_FRAME_SIZE)
-				# Read the header:
-				finished, flags, opcode = read_header
+				buffer = @stream.read(2)
 				
-				# Read the frame:
+				unless buffer and buffer.bytesize == 2
+					raise EOFError, "Could not read frame header!"
+				end
+				
+				first_byte = buffer.getbyte(0)
+				
+				finished = (first_byte & 0b1000_0000 != 0)
+				flags = (first_byte & 0b0111_0000) >> 4
+				opcode = first_byte & 0b0000_1111
+				
+				if opcode >= 0x3 && opcode <= 0x7
+					raise ProtocolError, "Non-control opcode = #{opcode} is reserved!"
+				elsif opcode >= 0xB
+					raise ProtocolError, "Control opcode = #{opcode} is reserved!"
+				end
+				
 				klass = @frames[opcode] || Frame
-				frame = klass.read(finished, flags, opcode, @stream, maximum_frame_size)
+				frame = klass.read(finished, flags, opcode, @stream, maximum_frame_size, buffer.getbyte(1))
 				
 				return frame
 			end
@@ -63,15 +77,6 @@ module Protocol
 			# Write a frame to the underlying stream.
 			def write_frame(frame)
 				frame.write(@stream)
-			end
-			
-			# Read the header of the frame.
-			def read_header
-				if buffer = @stream.read(1) and buffer.bytesize == 1
-					return Frame.parse_header(buffer)
-				end
-				
-				raise EOFError, "Could not read frame header!"
 			end
 		end
 	end
