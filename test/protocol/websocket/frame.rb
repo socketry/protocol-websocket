@@ -75,6 +75,15 @@ describe Protocol::WebSocket::Frame do
 				subject.read(false, 0, 0, stream, 128)
 			end.to raise_exception(EOFError, message: be =~ /Incorrect payload length: \d+ != \d+!/)
 		end
+		
+		it "accepts a pre-read second byte" do
+			stream = StringIO.new("Hello")
+			second_byte = 0x05
+			
+			frame = subject.read(true, 0, 0x1, stream, 128, second_byte)
+			expect(frame.payload).to be == "Hello"
+			expect(frame.mask).to be == false
+		end
 	end
 	
 	with ".write" do

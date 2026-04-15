@@ -15,5 +15,23 @@ describe Protocol::WebSocket::Framer do
 				framer.read_frame
 			end.to raise_exception(EOFError, message: be =~ /Could not read frame header/)
 		end
+		
+		it "rejects reserved non-control opcodes" do
+			stream.string = "\x83\x00"
+			stream.rewind
+			
+			expect do
+				framer.read_frame
+			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Non-control opcode.*reserved/)
+		end
+		
+		it "rejects reserved control opcodes" do
+			stream.string = "\x8B\x00"
+			stream.rewind
+			
+			expect do
+				framer.read_frame
+			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Control opcode.*reserved/)
+		end
 	end
 end

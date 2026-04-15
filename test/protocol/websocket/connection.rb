@@ -301,6 +301,37 @@ describe Protocol::WebSocket::Connection do
 		end
 	end
 	
+	with "masked frames with extended lengths" do
+		let(:connection) {subject.new(server)}
+		
+		it "can handle a masked medium message (length=126 encoding)" do
+			thread = Thread.new do
+				frame = Protocol::WebSocket::TextFrame.new(true, mask: true)
+				frame.pack("a" * 200)
+				client.write_frame(frame)
+			end
+			
+			message = connection.read
+			expect(message.size).to be == 200
+			expect(message).to be == ("a" * 200)
+			
+			thread.join
+		end
+		
+		it "can handle a masked large message (length=127 encoding)" do
+			thread = Thread.new do
+				frame = Protocol::WebSocket::TextFrame.new(true, mask: true)
+				frame.pack("a" * 70_000)
+				client.write_frame(frame)
+			end
+			
+			message = connection.read
+			expect(message.size).to be == 70_000
+			
+			thread.join
+		end
+	end
+	
 	with "invalid unicode text message in 3 fragments" do
 		let(:payload1) {"\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5".b}
 		let(:payload2) {"\xf4\x90\x80\x80".b}
