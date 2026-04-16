@@ -43,7 +43,6 @@ describe Protocol::WebSocket::CloseFrame do
 		
 		it "rejects a close frame with an invalid format" do
 			frame.payload = "1"
-			frame.length = 1
 			
 			expect do
 				frame.unpack

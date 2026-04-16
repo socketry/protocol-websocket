@@ -21,7 +21,6 @@ module Protocol
 			
 			OPCODE = 0
 			
-			# @parameter length [Integer] The length of the payload, or nil if the header has not been read yet.
 			# @parameter mask [Boolean | String] An optional 4-byte string which is used to mask the payload.
 			def initialize(finished = true, payload = nil, flags: 0, opcode: self.class::OPCODE, mask: false)
 				if mask == true
@@ -32,7 +31,6 @@ module Protocol
 				@flags = flags
 				@opcode = opcode
 				@mask = mask
-				@length = payload&.bytesize
 				@payload = payload
 			end
 			
@@ -51,9 +49,9 @@ module Protocol
 			end
 			
 			# Convert this frame to an array of its fields for comparison or inspection.
-			# @returns [Array] An array of `[finished, flags, opcode, mask, length, payload]`.
+			# @returns [Array] An array of `[finished, flags, opcode, mask, payload]`.
 			def to_ary
-				[@finished, @flags, @opcode, @mask, @length, @payload]
+				[@finished, @flags, @opcode, @mask, @payload]
 			end
 			
 			# Check whether this is a control frame (opcode has bit 3 set).
@@ -104,8 +102,13 @@ module Protocol
 			attr_accessor :flags
 			attr_accessor :opcode
 			attr_accessor :mask
-			attr_accessor :length
 			attr_accessor :payload
+			
+			# The byte length of the payload.
+			# @returns [Integer | nil]
+			def length
+				@payload&.bytesize
+			end
 			
 			if IO.const_defined?(:Buffer) && IO::Buffer.respond_to?(:for) && IO::Buffer.method_defined?(:xor!)
 				private def mask_xor(data, mask)
@@ -135,18 +138,14 @@ module Protocol
 			# @parameter data [String] The payload data to pack.
 			# @returns [Frame] Returns `self`.
 			def pack(data = "")
-				length = data.bytesize
-				
-				if length.bit_length > 63
-					raise ProtocolError, "Frame length #{@length} bigger than allowed maximum!"
+				if data.bytesize.bit_length > 63
+					raise ProtocolError, "Frame length #{data.bytesize} bigger than allowed maximum!"
 				end
 				
 				if @mask
-					@payload = mask_xor(data, mask)
-					@length = length
+					@payload = mask_xor(data, @mask)
 				else
 					@payload = data
-					@length = length
 				end
 				
 				return self
@@ -166,45 +165,6 @@ module Protocol
 			# @parameter connection [Connection] The WebSocket connection to receive this frame.
 			def apply(connection)
 				connection.receive_frame(self)
-			end
-			
-			# Write this frame to the given stream.
-			# @parameter stream [IO] The stream to write the serialized frame to.
-			# @raises [ProtocolError] If the frame has invalid length or mask.
-			def write(stream)
-				buffer = String.new(encoding: Encoding::BINARY)
-				
-				if @payload&.bytesize != @length
-					raise ProtocolError, "Invalid payload length: #{@length} != #{@payload.bytesize} for #{self}!"
-				end
-				
-				if @mask and @mask.bytesize != 4
-					raise ProtocolError, "Invalid mask length!"
-				end
-				
-				if length <= 125
-					short_length = length
-				elsif length.bit_length <= 16
-					short_length = 126
-				else
-					short_length = 127
-				end
-				
-				buffer << [
-					(@finished ? 0b1000_0000 : 0) | (@flags << 4) | @opcode,
-					(@mask ? 0b1000_0000 : 0) | short_length,
-				].pack("CC")
-				
-				if short_length == 126
-					buffer << [@length].pack("n")
-				elsif short_length == 127
-					buffer << [@length].pack("Q>")
-				end
-				
-				buffer << @mask if @mask
-				
-				stream.write(buffer)
-				stream.write(@payload)
 			end
 		end
 	end

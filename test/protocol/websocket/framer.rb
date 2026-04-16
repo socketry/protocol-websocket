@@ -9,6 +9,30 @@ describe Protocol::WebSocket::Framer do
 	let(:stream) {StringIO.new}
 	let(:framer) {subject.new(stream)}
 	
+	with "#write_frame" do
+		it "fails with invalid mask size" do
+			frame = Protocol::WebSocket::Frame.new(true, "12345")
+			frame.mask = "bad"
+			
+			expect do
+				framer.write_frame(frame)
+			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Invalid mask length/)
+		end
+		
+		it "writes a text frame and reads it back" do
+			output = StringIO.new
+			writer = Protocol::WebSocket::Framer.new(output)
+			
+			frame = Protocol::WebSocket::TextFrame.new(true, "Hello")
+			writer.write_frame(frame)
+			
+			reader = Protocol::WebSocket::Framer.new(StringIO.new(output.string))
+			received = reader.read_frame
+			expect(received).to be_a(Protocol::WebSocket::TextFrame)
+			expect(received.payload).to be == "Hello"
+		end
+	end
+	
 	with "#read_frame" do
 		it "fails if it can't read the frame header" do
 			expect do

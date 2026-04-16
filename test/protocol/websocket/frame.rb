@@ -29,26 +29,4 @@ describe Protocol::WebSocket::Frame do
 		end
 	end
 	
-	with ".write" do
-		let(:stream) {StringIO.new}
-		
-		it "fails with invalid payload length" do
-			frame.length = 5
-			frame.payload = "1234"
-			
-			expect do
-				frame.write(stream)
-			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Invalid payload length/)
-		end
-		
-		it "fails with invalid mask size" do
-			frame.length = 5
-			frame.payload = "12345"
-			frame.mask = "bad"
-			
-			expect do
-				frame.write(stream)
-			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Invalid mask length/)
-		end
-	end
 end

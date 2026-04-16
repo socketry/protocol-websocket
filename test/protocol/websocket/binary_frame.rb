@@ -5,6 +5,7 @@
 
 require "protocol/websocket/a_websocket_frame"
 require "protocol/websocket/binary_frame"
+require "protocol/websocket/framer"
 
 describe Protocol::WebSocket::BinaryFrame do
 	let(:frame) {subject.new}
@@ -28,9 +29,7 @@ describe Protocol::WebSocket::BinaryFrame do
 		
 		it "encodes binary representation" do
 			buffer = StringIO.new
-			
-			frame.write(buffer)
-			
+			Protocol::WebSocket::Framer.new(buffer).write_frame(frame)
 			expect(buffer.string).to be == "\x82\x8Babcd)\a\x0F\b\x0EB4\v\x13\x0E\a"
 		end
 	end
@@ -42,9 +41,7 @@ describe Protocol::WebSocket::BinaryFrame do
 		
 		it "encodes binary representation" do
 			buffer = StringIO.new
-			
-			frame.write(buffer)
-			
+			Protocol::WebSocket::Framer.new(buffer).write_frame(frame)
 			expect(buffer.string).to be == "\x82\vHello World"
 		end
 	end

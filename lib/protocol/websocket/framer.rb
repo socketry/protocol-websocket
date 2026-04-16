@@ -117,8 +117,38 @@ module Protocol
 			end
 			
 			# Write a frame to the underlying stream.
+			# @parameter frame [Frame] The frame to serialize and write.
+			# @raises [ProtocolError] If the frame has an invalid mask.
 			def write_frame(frame)
-				frame.write(@stream)
+				if frame.mask and frame.mask.bytesize != 4
+					raise ProtocolError, "Invalid mask length!"
+				end
+				
+				length = frame.length
+				
+				if length <= 125
+					short_length = length
+				elsif length.bit_length <= 16
+					short_length = 126
+				else
+					short_length = 127
+				end
+				
+				buffer = [
+					(frame.finished ? 0b1000_0000 : 0) | (frame.flags << 4) | frame.opcode,
+					(frame.mask ? 0b1000_0000 : 0) | short_length,
+				].pack("CC")
+				
+				if short_length == 126
+					buffer << [length].pack("n")
+				elsif short_length == 127
+					buffer << [length].pack("Q>")
+				end
+				
+				buffer << frame.mask if frame.mask
+				
+				@stream.write(buffer)
+				@stream.write(frame.payload)
 			end
 		end
 	end
