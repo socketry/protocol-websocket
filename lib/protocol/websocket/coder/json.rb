@@ -10,6 +10,8 @@ module Protocol
 		module Coder
 			# A JSON coder that uses the standard JSON library.
 			class JSON
+				# Initialize a new JSON coder.
+				# @parameter options [Hash] Options to pass to the JSON library when parsing or generating.
 				def initialize(**options)
 					@options = options
 				end

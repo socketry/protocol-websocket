@@ -3,7 +3,9 @@
 # Released under the MIT License.
 # Copyright, 2019-2026, by Samuel Williams.
 
+# @namespace
 module Protocol
+	# @namespace
 	module WebSocket
 		VERSION = "0.20.2"
 	end

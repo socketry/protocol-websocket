@@ -41,6 +41,9 @@ module Protocol
 		
 		# Raised by stream or connection handlers, results in GOAWAY frame which signals termination of the current connection. You *cannot* recover from this exception, or any exceptions subclassed from it.
 		class ProtocolError < Error
+			# Initialize a protocol error with an optional status code.
+			# @parameter message [String] The error message.
+			# @parameter code [Integer] The WebSocket status code associated with the error.
 			def initialize(message, code = PROTOCOL_ERROR)
 				super(message)
 				

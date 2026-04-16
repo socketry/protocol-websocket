@@ -29,6 +29,9 @@ module Protocol
 		
 		# Wraps an underlying {Async::IO::Stream} for reading and writing binary data into structured frames.
 		class Framer
+			# Initialize a new framer wrapping the given stream.
+			# @parameter stream [IO] The underlying stream to read from and write to.
+			# @parameter frames [Hash] A mapping of opcodes to frame classes.
 			def initialize(stream, frames = FRAMES)
 				@stream = stream
 				@frames = frames

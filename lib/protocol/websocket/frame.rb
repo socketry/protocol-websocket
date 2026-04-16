@@ -10,6 +10,7 @@ require_relative "error"
 
 module Protocol
 	module WebSocket
+		# Represents a single WebSocket frame as defined by RFC 6455.
 		class Frame
 			include Comparable
 			
@@ -35,18 +36,28 @@ module Protocol
 				@payload = payload
 			end
 			
+			# Check whether the specified RSV flag bit is set on this frame.
+			# @parameter value [Integer] The flag bitmask to test (e.g. `RSV1`).
+			# @returns [Boolean] `true` if the flag bit is set.
 			def flag?(value)
 				@flags & value != 0
 			end
 			
+			# Compare this frame to another frame by their array representation.
+			# @parameter other [Frame] The frame to compare against.
+			# @returns [Integer] A comparison result (-1, 0, or 1).
 			def <=> other
 				to_ary <=> other.to_ary
 			end
 			
+			# Convert this frame to an array of its fields for comparison or inspection.
+			# @returns [Array] An array of `[finished, flags, opcode, mask, length, payload]`.
 			def to_ary
 				[@finished, @flags, @opcode, @mask, @length, @payload]
 			end
 			
+			# Check whether this is a control frame (opcode has bit 3 set).
+			# @returns [Boolean] `true` if this is a control frame.
 			def control?
 				@opcode & 0x8 != 0
 			end
@@ -56,10 +67,14 @@ module Protocol
 				false
 			end
 			
+			# Check whether this is the final frame in a message.
+			# @returns [Boolean] `true` if the FIN bit is set.
 			def finished?
 				@finished == true
 			end
 			
+			# Check whether this frame is a continuation fragment (FIN bit not set).
+			# @returns [Boolean] `true` if the FIN bit is not set.
 			def continued?
 				@finished == false
 			end
@@ -116,6 +131,9 @@ module Protocol
 				end
 			end
 			
+			# Pack the given data into this frame's payload, applying masking if configured.
+			# @parameter data [String] The payload data to pack.
+			# @returns [Frame] Returns `self`.
 			def pack(data = "")
 				length = data.bytesize
 				
@@ -134,6 +152,8 @@ module Protocol
 				return self
 			end
 			
+			# Unpack the raw payload, removing masking if present.
+			# @returns [String] The unmasked payload data.
 			def unpack
 				if @mask and !@payload.empty?
 					return mask_xor(@payload, @mask)
@@ -142,10 +162,16 @@ module Protocol
 				end
 			end
 			
+			# Apply this frame to the connection by dispatching it to the appropriate handler.
+			# @parameter connection [Connection] The WebSocket connection to receive this frame.
 			def apply(connection)
 				connection.receive_frame(self)
 			end
 			
+			# Parse the first byte of a frame header to extract FIN, RSV flags, and opcode.
+			# @parameter buffer [String] A 1-byte binary string.
+			# @returns [Array] A tuple of `[finished, flags, opcode]`.
+			# @raises [ProtocolError] If the opcode is a reserved non-control or control opcode.
 			def self.parse_header(buffer)
 				byte = buffer.unpack("C").first
 				
@@ -162,6 +188,15 @@ module Protocol
 				return finished, flags, opcode
 			end
 			
+			# Read a full frame from the stream given pre-parsed header fields.
+			# @parameter finished [Boolean] Whether the FIN bit was set.
+			# @parameter flags [Integer] The RSV flag bits.
+			# @parameter opcode [Integer] The frame opcode.
+			# @parameter stream [IO] The stream to read from.
+			# @parameter maximum_frame_size [Integer] The maximum allowed payload size in bytes.
+			# @returns [Frame] The fully read and populated frame.
+			# @raises [ProtocolError] If the frame violates protocol constraints.
+			# @raises [EOFError] If the stream ends unexpectedly.
 			def self.read(finished, flags, opcode, stream, maximum_frame_size)
 				buffer = stream.read(1) or raise EOFError, "Could not read header!"
 				byte = buffer.unpack("C").first
@@ -202,6 +237,9 @@ module Protocol
 				return self.new(finished, payload, flags: flags, opcode: opcode, mask: mask)
 			end
 			
+			# Write this frame to the given stream.
+			# @parameter stream [IO] The stream to write the serialized frame to.
+			# @raises [ProtocolError] If the frame has invalid length or mask.
 			def write(stream)
 				buffer = String.new(encoding: Encoding::BINARY)
 				

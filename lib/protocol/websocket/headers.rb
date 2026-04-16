@@ -8,6 +8,7 @@ require "securerandom"
 
 module Protocol
 	module WebSocket
+		# @namespace
 		module Headers
 			# The protocol string used for the `upgrade:` header (HTTP/1) and `:protocol` pseudo-header (HTTP/2).
 			PROTOCOL = "websocket"
@@ -23,6 +24,7 @@ module Protocol
 			
 			SEC_WEBSOCKET_EXTENSIONS = "sec-websocket-extensions"
 			
+			# Provides utilities for generating and verifying the WebSocket handshake nonce.
 			module Nounce
 				GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 				

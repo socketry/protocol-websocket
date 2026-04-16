@@ -9,6 +9,7 @@ require_relative "compression/deflate"
 
 module Protocol
 	module WebSocket
+		# @namespace
 		module Extension
 			# Provides support for the permessage-deflate extension.
 			module Compression

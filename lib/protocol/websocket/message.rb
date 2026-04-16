@@ -57,6 +57,8 @@ module Protocol
 				parse(...).to_h
 			end
 			
+			# Send this message as a text frame over the given connection.
+			# @parameter connection [Connection] The WebSocket connection to send through.
 			def send(connection, **options)
 				connection.send_text(@buffer, **options)
 			end
@@ -68,6 +70,8 @@ module Protocol
 		
 		# Represents a binary message that can be sent or received over a WebSocket connection.
 		class BinaryMessage < Message
+			# Send this message as a binary frame over the given connection.
+			# @parameter connection [Connection] The WebSocket connection to send through.
 			def send(connection, **options)
 				connection.send_binary(@buffer, **options)
 			end
@@ -75,6 +79,8 @@ module Protocol
 		
 		# Represents a ping message that can be sent over a WebSocket connection.
 		class PingMessage < Message
+			# Send this message as a ping frame over the given connection.
+			# @parameter connection [Connection] The WebSocket connection to send through.
 			def send(connection)
 				connection.send_ping(@buffer)
 			end

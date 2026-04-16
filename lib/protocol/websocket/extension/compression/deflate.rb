@@ -9,6 +9,7 @@ module Protocol
 	module WebSocket
 		module Extension
 			module Compression
+				# Compresses outgoing WebSocket frames using the DEFLATE algorithm.
 				class Deflate
 					# Client writing to server.
 					def self.client(parent, client_max_window_bits: 15, client_no_context_takeover: false, **options)
@@ -28,6 +29,13 @@ module Protocol
 						)
 					end
 					
+					# Initialize a new deflate compressor.
+					# @parameter parent [Object] The parent framer to wrap.
+					# @parameter level [Integer] The compression level. Defaults to `Zlib::DEFAULT_COMPRESSION`.
+					# @parameter memory_level [Integer] The memory level for compression. Defaults to `Zlib::DEF_MEM_LEVEL`.
+					# @parameter strategy [Integer] The compression strategy. Defaults to `Zlib::DEFAULT_STRATEGY`.
+					# @parameter window_bits [Integer] The window size in bits for the DEFLATE algorithm.
+					# @parameter context_takeover [Boolean] Whether to reuse the compression context across messages.
 					def initialize(parent, level: Zlib::DEFAULT_COMPRESSION, memory_level: Zlib::DEF_MEM_LEVEL, strategy: Zlib::DEFAULT_STRATEGY, window_bits: 15, context_takeover: true, **options)
 						@parent = parent
 						
@@ -46,13 +54,20 @@ module Protocol
 						@context_takeover = context_takeover
 					end
 					
+					# @returns [String] A string representation including window bits and context takeover settings.
 					def to_s
 						"#<#{self.class} window_bits=#{@window_bits} context_takeover=#{@context_takeover}>"
 					end
 					
+					# @attribute [Integer] The window size in bits used for compression.
 					attr :window_bits
+					# @attribute [Boolean] Whether the compression context is reused across messages.
 					attr :context_takeover
 					
+					# Pack a text frame, optionally compressing the buffer.
+					# @parameter buffer [String] The text payload to pack.
+					# @parameter compress [Boolean] Whether to compress the buffer. Defaults to `true`.
+					# @returns [Frame] The packed (and optionally compressed) text frame.
 					def pack_text_frame(buffer, compress: true, **options)
 						if compress
 							buffer = self.deflate(buffer)
@@ -67,6 +82,10 @@ module Protocol
 						return frame
 					end
 					
+					# Pack a binary frame, optionally compressing the buffer.
+					# @parameter buffer [String] The binary payload to pack.
+					# @parameter compress [Boolean] Whether to compress the buffer. Defaults to `false`.
+					# @returns [Frame] The packed (and optionally compressed) binary frame.
 					def pack_binary_frame(buffer, compress: false, **options)
 						if compress
 							buffer = self.deflate(buffer)
