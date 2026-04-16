@@ -5,6 +5,7 @@
 # Copyright, 2019, by Soumya.
 
 require "socket"
+require "securerandom"
 require "protocol/websocket/connection"
 
 describe Protocol::WebSocket::Connection do
