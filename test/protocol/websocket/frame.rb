@@ -29,20 +29,6 @@ describe Protocol::WebSocket::Frame do
 		end
 	end
 	
-	with ".parse_header" do
-		it "rejects reserved non-control opcodes" do
-			expect do
-				subject.parse_header("\x03\x00")
-			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Non-control opcode.*reserved/)
-		end
-		
-		it "rejects reserved control opcodes" do
-			expect do
-				subject.parse_header("\x0F\x00")
-			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Control opcode.*reserved/)
-		end
-	end
-	
 	with ".read" do
 		it "rejects invalid control frame payload length" do
 			stream = StringIO.new("\xFF")

@@ -168,26 +168,6 @@ module Protocol
 				connection.receive_frame(self)
 			end
 			
-			# Parse the first byte of a frame header to extract FIN, RSV flags, and opcode.
-			# @parameter buffer [String] A 1-byte binary string.
-			# @returns [Array] A tuple of `[finished, flags, opcode]`.
-			# @raises [ProtocolError] If the opcode is a reserved non-control or control opcode.
-			def self.parse_header(buffer)
-				byte = buffer.getbyte(0)
-				
-				finished = (byte & 0b1000_0000 != 0)
-				flags = (byte & 0b0111_0000) >> 4
-				opcode = byte & 0b0000_1111
-				
-				if opcode >= 0x3 && opcode <= 0x7
-					raise ProtocolError, "Non-control opcode = #{opcode} is reserved!"
-				elsif opcode >= 0xB
-					raise ProtocolError, "Control opcode = #{opcode} is reserved!"
-				end
-				
-				return finished, flags, opcode
-			end
-			
 			# Read a full frame from the stream given pre-parsed header fields.
 			# @parameter finished [Boolean] Whether the FIN bit was set.
 			# @parameter flags [Integer] The RSV flag bits.
