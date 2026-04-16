@@ -168,67 +168,6 @@ module Protocol
 				connection.receive_frame(self)
 			end
 			
-			# Read a full frame from the stream given pre-parsed header fields.
-			# @parameter finished [Boolean] Whether the FIN bit was set.
-			# @parameter flags [Integer] The RSV flag bits.
-			# @parameter opcode [Integer] The frame opcode.
-			# @parameter stream [IO] The stream to read from.
-			# @parameter maximum_frame_size [Integer] The maximum allowed payload size in bytes.
-			# @returns [Frame] The fully read and populated frame.
-			# @raises [ProtocolError] If the frame violates protocol constraints.
-			# @raises [EOFError] If the stream ends unexpectedly.
-			def self.read(finished, flags, opcode, stream, maximum_frame_size, second_byte = nil)
-				unless second_byte
-					buffer = stream.read(1) or raise EOFError, "Could not read header!"
-					second_byte = buffer.getbyte(0)
-				end
-				
-				mask = (second_byte & 0b1000_0000 != 0)
-				length = second_byte & 0b0111_1111
-				
-				if opcode & 0x8 != 0
-					if length > 125
-						raise ProtocolError, "Invalid control frame payload length: #{length} > 125!"
-					elsif !finished
-						raise ProtocolError, "Fragmented control frame!"
-					end
-				end
-				
-				if length == 126
-					if mask
-						buffer = stream.read(6) or raise EOFError, "Could not read length and mask!"
-						length = buffer.unpack1("n")
-						mask = buffer.byteslice(2, 4)
-					else
-						buffer = stream.read(2) or raise EOFError, "Could not read length!"
-						length = buffer.unpack1("n")
-					end
-				elsif length == 127
-					if mask
-						buffer = stream.read(12) or raise EOFError, "Could not read length and mask!"
-						length = buffer.unpack1("Q>")
-						mask = buffer.byteslice(8, 4)
-					else
-						buffer = stream.read(8) or raise EOFError, "Could not read length!"
-						length = buffer.unpack1("Q>")
-					end
-				elsif mask
-					mask = stream.read(4) or raise EOFError, "Could not read mask!"
-				end
-				
-				if length > maximum_frame_size
-					raise ProtocolError, "Invalid payload length: #{length} > #{maximum_frame_size}!"
-				end
-				
-				payload = stream.read(length) or raise EOFError, "Could not read payload!"
-				
-				if payload.bytesize != length
-					raise EOFError, "Incorrect payload length: #{length} != #{payload.bytesize}!"
-				end
-				
-				return self.new(finished, payload, flags: flags, opcode: opcode, mask: mask)
-			end
-			
 			# Write this frame to the given stream.
 			# @parameter stream [IO] The stream to write the serialized frame to.
 			# @raises [ProtocolError] If the frame has invalid length or mask.

@@ -57,6 +57,7 @@ module Protocol
 				end
 				
 				first_byte = buffer.getbyte(0)
+				second_byte = buffer.getbyte(1)
 				
 				finished = (first_byte & 0b1000_0000 != 0)
 				flags = (first_byte & 0b0111_0000) >> 4
@@ -68,10 +69,51 @@ module Protocol
 					raise ProtocolError, "Control opcode = #{opcode} is reserved!"
 				end
 				
-				klass = @frames[opcode] || Frame
-				frame = klass.read(finished, flags, opcode, @stream, maximum_frame_size, buffer.getbyte(1))
+				mask = (second_byte & 0b1000_0000 != 0)
+				length = second_byte & 0b0111_1111
 				
-				return frame
+				if opcode & 0x8 != 0
+					if length > 125
+						raise ProtocolError, "Invalid control frame payload length: #{length} > 125!"
+					elsif !finished
+						raise ProtocolError, "Fragmented control frame!"
+					end
+				end
+				
+				if length == 126
+					if mask
+						buffer = @stream.read(6) or raise EOFError, "Could not read length and mask!"
+						length = buffer.unpack1("n")
+						mask = buffer.byteslice(2, 4)
+					else
+						buffer = @stream.read(2) or raise EOFError, "Could not read length!"
+						length = buffer.unpack1("n")
+					end
+				elsif length == 127
+					if mask
+						buffer = @stream.read(12) or raise EOFError, "Could not read length and mask!"
+						length = buffer.unpack1("Q>")
+						mask = buffer.byteslice(8, 4)
+					else
+						buffer = @stream.read(8) or raise EOFError, "Could not read length!"
+						length = buffer.unpack1("Q>")
+					end
+				elsif mask
+					mask = @stream.read(4) or raise EOFError, "Could not read mask!"
+				end
+				
+				if length > maximum_frame_size
+					raise ProtocolError, "Invalid payload length: #{length} > #{maximum_frame_size}!"
+				end
+				
+				payload = @stream.read(length) or raise EOFError, "Could not read payload!"
+				
+				if payload.bytesize != length
+					raise EOFError, "Incorrect payload length: #{length} != #{payload.bytesize}!"
+				end
+				
+				klass = @frames[opcode] || Frame
+				return klass.new(finished, payload, flags: flags, opcode: opcode, mask: mask)
 			end
 			
 			# Write a frame to the underlying stream.
