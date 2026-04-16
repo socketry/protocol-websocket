@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2024, by Samuel Williams.
+# Copyright, 2019-2026, by Samuel Williams.
 # Copyright, 2019, by Soumya.
 
 require "socket"
@@ -277,7 +277,7 @@ describe Protocol::WebSocket::Connection do
 			
 			thread.join
 		end
-
+		
 		it "can handle a medium message (<65k)" do
 			thread = Thread.new do
 				client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 60_000)})
@@ -288,7 +288,7 @@ describe Protocol::WebSocket::Connection do
 			
 			thread.join
 		end
-
+		
 		it "can handle large message (>65k)" do
 			thread = Thread.new do
 				client.write_frame(Protocol::WebSocket::TextFrame.new(true).tap{|frame| frame.pack("a" * 90_000)})

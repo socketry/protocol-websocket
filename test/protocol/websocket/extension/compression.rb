@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022-2024, by Samuel Williams.
+# Copyright, 2022-2026, by Samuel Williams.
 
 require "protocol/websocket/extension/compression"
 
@@ -109,21 +109,23 @@ describe Protocol::WebSocket::Extension::Compression do
 	end
 	
 	with "permessage-deflate; true; 12; false; 9" do
-		let(:extensions) {::Protocol::WebSocket::Extensions::Client.new([
-			[Protocol::WebSocket::Extension::Compression, {
-				# client.writer.context_takeover = false; server.reader.context_takeover = false;
-				client_no_context_takeover: true,
-				
-				# client.writer.window_bits = 12; server.reader.window_bits = 12;
-				client_max_window_bits: 12,
-				
-				# server.writer.context_takeover = true; client.reader.context_takeover = true;
-				server_no_context_takeover: false,
-				
-				# server.writer.window_bits = 9; client.reader.window_bits = 9;
-				server_max_window_bits: 9
-			}]
-		])}
+		let(:extensions) do
+			::Protocol::WebSocket::Extensions::Client.new([
+				[Protocol::WebSocket::Extension::Compression, {
+					# client.writer.context_takeover = false; server.reader.context_takeover = false;
+					client_no_context_takeover: true,
+					
+					# client.writer.window_bits = 12; server.reader.window_bits = 12;
+					client_max_window_bits: 12,
+					
+					# server.writer.context_takeover = true; client.reader.context_takeover = true;
+					server_no_context_takeover: false,
+					
+					# server.writer.window_bits = 9; client.reader.window_bits = 9;
+					server_max_window_bits: 9
+				}]
+			])
+		end
 		
 		def websocket_server(request, server)
 			expect(server.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)
@@ -157,31 +159,33 @@ describe Protocol::WebSocket::Extension::Compression do
 	end
 	
 	with "permessage-deflate; false; 8; true; 13" do
-		let(:extensions) {::Protocol::WebSocket::Extensions::Client.new([
-			[Protocol::WebSocket::Extension::Compression, {
-				# Absence of this extension parameter in an extension negotiation
-				# response indicates that the server can decompress messages built by
-				# the client using context takeover.
-				client_no_context_takeover: false,
-				
-				# By including this extension parameter in an extension negotiation
-				# response, a server limits the LZ77 sliding window size that the
-				# client uses to compress messages.  This reduces the amount of memory
-				# for the decompression context that the server has to reserve for the
-				# connection.
-				client_max_window_bits: 8,
-				
-				# Absence of this extension parameter in an extension negotiation offer
-				# indicates that the client can decompress a message that the server
-				# built using context takeover.
-				server_no_context_takeover: true,
-				
-				# Absence of this parameter in an extension negotiation offer indicates
-				# that the client can receive messages compressed using an LZ77 sliding
-				# window of up to 32,768 bytes.
-				server_max_window_bits: 13
-			}]
-		])}
+		let(:extensions) do
+			::Protocol::WebSocket::Extensions::Client.new([
+				[Protocol::WebSocket::Extension::Compression, {
+					# Absence of this extension parameter in an extension negotiation
+					# response indicates that the server can decompress messages built by
+					# the client using context takeover.
+					client_no_context_takeover: false,
+					
+					# By including this extension parameter in an extension negotiation
+					# response, a server limits the LZ77 sliding window size that the
+					# client uses to compress messages.  This reduces the amount of memory
+					# for the decompression context that the server has to reserve for the
+					# connection.
+					client_max_window_bits: 8,
+					
+					# Absence of this extension parameter in an extension negotiation offer
+					# indicates that the client can decompress a message that the server
+					# built using context takeover.
+					server_no_context_takeover: true,
+					
+					# Absence of this parameter in an extension negotiation offer indicates
+					# that the client can receive messages compressed using an LZ77 sliding
+					# window of up to 32,768 bytes.
+					server_max_window_bits: 13
+				}]
+			])
+		end
 		
 		def websocket_server(request, server)
 			expect(server.writer).to be_a(Protocol::WebSocket::Extension::Compression::Deflate)

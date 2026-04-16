@@ -8,7 +8,7 @@ class RawConnection < Async::WebSocket::Connection
 	def parse(buffer)
 		buffer
 	end
-
+	
 	def dump(buffer)
 		buffer
 	end

@@ -1,26 +1,26 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2023-2024, by Samuel Williams.
+# Copyright, 2023-2026, by Samuel Williams.
 
 def mask_xor_buffer(data, mask)
 	buffer = data.dup
 	mask_buffer = IO::Buffer.for(mask)
-
+	
 	IO::Buffer.for(buffer) do |buffer|
 		buffer.xor!(mask_buffer)
 	end
-
+	
 	return buffer
 end
 
 def mask_xor_string(data, mask)
 	result = String.new(encoding: Encoding::BINARY)
-
+	
 	for i in 0...data.bytesize do
 		result << (data.getbyte(i) ^ mask.getbyte(i % 4))
 	end
-
+	
 	return result
 end
 
@@ -34,14 +34,14 @@ Benchmark.ips do |x|
 	# Configure the number of seconds used during
 	# the warmup phase (default 2) and calculation phase (default 5)
 	x.config(:time => 5, :warmup => 2)
-
+	
 	# These parameters can also be configured this way
 	x.time = 5
 	x.warmup = 2
-
-	x.report("IO::Buffer") {mask_xor_buffer(DATA, MASK)}
-	x.report("String") {mask_xor_string(DATA, MASK)}
-
+	
+	x.report("IO::Buffer"){mask_xor_buffer(DATA, MASK)}
+	x.report("String"){mask_xor_string(DATA, MASK)}
+	
 	# Compare the iterations per second of the various reports!
 	x.compare!
 end

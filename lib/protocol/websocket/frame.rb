@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2019-2025, by Samuel Williams.
+# Copyright, 2019-2026, by Samuel Williams.
 # Copyright, 2019, by Soumya.
 # Copyright, 2021, by Aurora Nockert.
 # Copyright, 2025, by Taleh Zaliyev.
@@ -19,7 +19,7 @@ module Protocol
 			RESERVED = RSV1 | RSV2 | RSV3
 			
 			OPCODE = 0
-						
+			
 			# @parameter length [Integer] The length of the payload, or nil if the header has not been read yet.
 			# @parameter mask [Boolean | String] An optional 4-byte string which is used to mask the payload.
 			def initialize(finished = true, payload = nil, flags: 0, opcode: self.class::OPCODE, mask: false)
@@ -107,7 +107,7 @@ module Protocol
 				warn "IO::Buffer not available, falling back to slow implementation of mask_xor!"
 				private def mask_xor(data, mask)
 					result = String.new(encoding: Encoding::BINARY)
-						
+					
 					for i in 0...data.bytesize do
 						result << (data.getbyte(i) ^ mask.getbyte(i % 4))
 					end

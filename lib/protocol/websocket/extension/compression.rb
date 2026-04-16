@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022-2024, by Samuel Williams.
+# Copyright, 2022-2026, by Samuel Williams.
 
 require_relative "compression/constants"
 require_relative "compression/inflate"
@@ -46,7 +46,7 @@ module Protocol
 					
 					return header
 				end
-
+				
 				# Negotiate on the server a response to client based on the incoming client offer.
 				# @parameter options [Hash] a hash of options which are accepted by the server.
 				# @returns [Array(String)] a list of compression parameters suitable to send back to the client.

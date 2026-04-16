@@ -12,6 +12,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-webso
 
   - [Extensions](https://socketry.github.io/protocol-websocket/guides/extensions/index) - This guide explains how to use `protocol-websocket` for implementing a websocket client and server using extensions.
 
+## Releases
+
+There are no documented releases.
+
 ## Contributing
 
 We welcome contributions to this project.
@@ -21,6 +25,22 @@ We welcome contributions to this project.
 3.  Commit your changes (`git commit -am 'Add some feature'`).
 4.  Push to the branch (`git push origin my-new-feature`).
 5.  Create new Pull Request.
+
+### Running Tests
+
+To run the test suite:
+
+``` shell
+bundle exec sus
+```
+
+### Making Releases
+
+To make a new release:
+
+``` shell
+bundle exec bake gem:release:patch # or minor or major
+```
 
 ### Developer Certificate of Origin
 

@@ -3,7 +3,7 @@
 
 # Released under the MIT License.
 # Copyright, 2021, by Aurora Nockert.
-# Copyright, 2022-2023, by Samuel Williams.
+# Copyright, 2022-2026, by Samuel Williams.
 
 require "json"
 
@@ -32,6 +32,6 @@ end
 
 puts "#{result.count - failed.count} / #{result.count} tests OK"
 
-failed.each { |k, _| puts "#{k} failed" }
+failed.each{|k, _| puts "#{k} failed"}
 
 exit(1) if failed.count > 0

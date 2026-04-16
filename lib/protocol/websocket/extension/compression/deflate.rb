@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2022-2024, by Samuel Williams.
+# Copyright, 2022-2026, by Samuel Williams.
 
 require_relative "constants"
 
@@ -36,7 +36,7 @@ module Protocol
 						@level = level
 						@memory_level = memory_level
 						@strategy = strategy
-
+						
 						# This is handled during negotiation:
 						# if window_bits < MINIMUM_WINDOW_BITS
 						# 	window_bits = MINIMUM_WINDOW_BITS
