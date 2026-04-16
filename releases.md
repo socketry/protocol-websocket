@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.21.0
 
   - All frame reading and writing logic has been consolidated into `Framer` to improve performance.
 

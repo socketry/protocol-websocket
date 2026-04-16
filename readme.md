@@ -16,7 +16,7 @@ Please see the [project documentation](https://socketry.github.io/protocol-webso
 
 Please see the [project releases](https://socketry.github.io/protocol-websocket/releases/index) for all releases.
 
-### Unreleased
+### v0.21.0
 
   - All frame reading and writing logic has been consolidated into `Framer` to improve performance.
 
