@@ -47,6 +47,43 @@ describe Protocol::WebSocket::Connection do
 			
 			expect(connection).to be(:closed?)
 		end
+		
+		it "does not raise if the underlying stream is closed" do
+			server.close
+			
+			expect do
+				connection.close_write
+			end.not.to raise_exception
+			
+			expect(connection).to be(:closed?)
+		end
+		
+		it "does not raise if the underlying stream is closed (with error)" do
+			server.close
+			
+			expect do
+				connection.close_write(RuntimeError.new("something went wrong"))
+			end.not.to raise_exception
+			
+			expect(connection).to be(:closed?)
+		end
+		
+		it "is not closed when close_write succeeds" do
+			connection.close_write
+			
+			expect(connection).not.to be(:closed?)
+		end
+		
+		it "can still read after a successful close_write" do
+			text_frame = Protocol::WebSocket::TextFrame.new(true)
+			text_frame.pack("Hello")
+			client.write_frame(text_frame)
+			
+			connection.close_write
+			
+			message = connection.read
+			expect(message).to be == "Hello"
+		end
 	end
 	
 	with "#shutdown" do
