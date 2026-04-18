@@ -104,6 +104,8 @@ module Protocol
 				else
 					send_close
 				end
+			rescue
+				@state = :closed
 			end
 			
 			# Close the connection gracefully. This will send a close frame and wait for the remote end to respond with a close frame. Any data received after the close frame is sent will be ignored. If you want to process this data, use {#close_write} instead, and read the data before calling {#close}.

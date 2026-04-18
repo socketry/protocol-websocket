@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - If `Connection#close_write` fails, the connection will now be fully closed to prevent hanging connections.
+
 ## v0.21.0
 
   - All frame reading and writing logic has been consolidated into `Framer` to improve performance.
