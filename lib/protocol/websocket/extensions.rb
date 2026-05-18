@@ -135,10 +135,7 @@ module Protocol
 				# 	@parameter header [Array(String)] The negotiated extension header tokens.
 				# @returns [Array] The accepted extensions as `[klass, options]` pairs.
 				def accept(headers)
-					extensions = []
-					
 					named = self.named
-					response = []
 					
 					# Each response header should map to at least one extension.
 					Extensions.parse(headers) do |name, arguments|
