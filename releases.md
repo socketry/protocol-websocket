@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.21.2
 
   - Fix JSON 3 compatibility by applying `symbolize_names` only when parsing incoming messages. `Coder::JSON` is now a module with fixed parsing and generation behavior; pass a different coder to customize serialization.
 

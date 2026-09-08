@@ -16,6 +16,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-webso
 
 Please see the [project releases](https://socketry.github.io/protocol-websocket/releases/index) for all releases.
 
+### v0.21.2
+
+  - Fix JSON 3 compatibility by applying `symbolize_names` only when parsing incoming messages. `Coder::JSON` is now a module with fixed parsing and generation behavior; pass a different coder to customize serialization.
+
 ### v0.21.1
 
   - If `Connection#close_write` fails, the connection will now be fully closed to prevent hanging connections.
@@ -52,11 +56,6 @@ Please see the [project releases](https://socketry.github.io/protocol-websocket/
 ### v0.17.0
 
   - Introduce `#close_write` and `#shutdown` methods on `Connection` for more precise connection lifecycle control.
-
-### v0.16.0
-
-  - Move `#send` logic into `Message` for better encapsulation.
-  - Improve error handling when a `nil` message is passed.
 
 ## Contributing
 
