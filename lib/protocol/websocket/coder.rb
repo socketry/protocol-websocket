@@ -10,7 +10,7 @@ module Protocol
 		# @namespace
 		module Coder
 			# The default coder for WebSocket messages.
-			DEFAULT = JSON::DEFAULT
+			DEFAULT = JSON
 		end
 	end
 end

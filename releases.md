@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Fix JSON 3 compatibility by applying `symbolize_names` only when parsing incoming messages. `Coder::JSON` is now a module with fixed parsing and generation behavior; pass a different coder to customize serialization.
+
 ## v0.21.1
 
   - If `Connection#close_write` fails, the connection will now be fully closed to prevent hanging connections.
