@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-  - Separate JSON parsing and generation options so parser-only settings such as `symbolize_names` do not break outgoing messages with JSON 3.
+  - Fix JSON 3 compatibility by applying `symbolize_names` only when parsing incoming messages.
 
 ## v0.21.1
 

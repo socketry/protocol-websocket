@@ -10,26 +10,18 @@ module Protocol
 		module Coder
 			# A JSON coder that uses the standard JSON library.
 			class JSON
-				# Initialize a new JSON coder.
-				# @parameter parse_options [Hash] Options to pass to the JSON library when parsing.
-				# @parameter generate_options [Hash] Options to pass to the JSON library when generating.
-				def initialize(parse_options: {}, generate_options: {})
-					@parse_options = parse_options
-					@generate_options = generate_options
-				end
-				
 				# Parse a JSON buffer into an object.
 				def parse(buffer)
-					::JSON.parse(buffer, **@parse_options)
+					::JSON.parse(buffer, symbolize_names: true)
 				end
 				
 				# Generate a JSON buffer from an object.
 				def generate(object)
-					::JSON.generate(object, **@generate_options)
+					::JSON.generate(object)
 				end
 				
 				# The default JSON coder. This coder will symbolize names.
-				DEFAULT = new(parse_options: {symbolize_names: true})
+				DEFAULT = new
 			end
 		end
 	end
