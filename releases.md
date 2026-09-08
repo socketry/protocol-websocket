@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Separate JSON parsing and generation options so parser-only settings such as `symbolize_names` do not break outgoing messages with JSON 3.
+
 ## v0.21.1
 
   - If `Connection#close_write` fails, the connection will now be fully closed to prevent hanging connections.
