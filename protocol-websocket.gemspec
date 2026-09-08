@@ -16,6 +16,8 @@ Gem::Specification.new do |spec|
 	spec.homepage = "https://github.com/socketry/protocol-websocket"
 	
 	spec.metadata = {
+		"bug_tracker_uri" => "https://github.com/socketry/protocol-websocket/issues",
+		"changelog_uri" => "https://github.com/socketry/protocol-websocket/blob/main/releases.md",
 		"documentation_uri" => "https://socketry.github.io/protocol-websocket/",
 		"source_code_uri" => "https://github.com/socketry/protocol-websocket.git",
 	}
