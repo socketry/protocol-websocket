@@ -10,9 +10,6 @@ Gem::Specification.new do |spec|
 	spec.authors = ["Samuel Williams", "William T. Nelson", "Aurora Nockert", "Soumya", "Olle Jonsson", "Taleh Zaliyev"]
 	spec.license = "MIT"
 	
-	spec.cert_chain  = ["release.cert"]
-	spec.signing_key = File.expand_path("~/.gem/release.pem")
-	
 	spec.homepage = "https://github.com/socketry/protocol-websocket"
 	
 	spec.metadata = {
