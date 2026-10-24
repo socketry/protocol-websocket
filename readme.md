@@ -16,6 +16,10 @@ Please see the [project documentation](https://socketry.github.io/protocol-webso
 
 Please see the [project releases](https://socketry.github.io/protocol-websocket/releases/index) for all releases.
 
+### Unreleased
+
+  - Adopt reviewed GitHub release pull requests, RubyGems Trusted Publishing, and release attestations instead of legacy certificate signing.
+
 ### v0.21.2
 
   - Fix JSON 3 compatibility by applying `symbolize_names` only when parsing incoming messages. `Coder::JSON` is now a module with fixed parsing and generation behavior; pass a different coder to customize serialization.
@@ -53,10 +57,6 @@ Please see the [project releases](https://socketry.github.io/protocol-websocket/
   - Add `PingMessage` alongside `TextMessage` and `BinaryMessage` for a consistent message interface.
   - Remove `JSONMessage` (use application-level encoding instead).
 
-### v0.17.0
-
-  - Introduce `#close_write` and `#shutdown` methods on `Connection` for more precise connection lifecycle control.
-
 ## Contributing
 
 We welcome contributions to this project.
@@ -77,11 +77,13 @@ $ bundle exec sus
 
 ### Making Releases
 
-To make a new release:
+To prepare a release pull request:
 
 ``` bash
-$ bundle exec bake gem:release:patch # or minor or major
+bundle exec bake gem:github:release:patch # or minor or major
 ```
+
+See [bake-gem-github](https://github.com/socketry/bake-gem-github) for setup and publishing details.
 
 ### Developer Certificate of Origin
 
