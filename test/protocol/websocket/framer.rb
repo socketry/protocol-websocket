@@ -89,6 +89,35 @@ describe Protocol::WebSocket::Framer do
 			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Invalid payload length: \d+ > \d+!/)
 		end
 		
+		it "accepts frames equal to the maximum frame size" do
+			# FIN=1, opcode=0x2 (binary), MASK=0, length=5
+			stream.string = "\x82\x0512345"
+			stream.rewind
+			
+			frame = framer.read_frame(5)
+			expect(frame.payload).to be == "12345"
+		end
+		
+		it "rejects frames with a 64-bit payload length of 2**63" do
+			# FIN=1, opcode=0x2 (binary), MASK=0, length=127, extended length=2**63
+			stream.string = "\x82\x7F\x80\x00\x00\x00\x00\x00\x00\x00"
+			stream.rewind
+			
+			expect do
+				framer.read_frame
+			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Invalid payload length: \d+ > \d+!/)
+		end
+		
+		it "rejects masked frames with a 64-bit payload length of 2**63" do
+			# FIN=1, opcode=0x2 (binary), MASK=1, length=127, extended length=2**63, mask=abcd
+			stream.string = "\x82\xFF\x80\x00\x00\x00\x00\x00\x00\x00abcd"
+			stream.rewind
+			
+			expect do
+				framer.read_frame
+			end.to raise_exception(Protocol::WebSocket::ProtocolError, message: be =~ /Invalid payload length: \d+ > \d+!/)
+		end
+		
 		it "rejects frames with truncated payload" do
 			# FIN=1, opcode=0x2 (binary), MASK=0, length=5, only 4 bytes of payload
 			stream.string = "\x82\x051234"
