@@ -69,6 +69,17 @@ describe Protocol::WebSocket::Connection do
 			expect(connection).to be(:closed?)
 		end
 		
+		it "truncates a long error message to fit in the close frame" do
+			connection.close_write(RuntimeError.new("x" * 200))
+			
+			frame = client.read_frame
+			expect(frame).to be_a(Protocol::WebSocket::CloseFrame)
+			
+			code, reason = frame.unpack
+			expect(code).to be == Protocol::WebSocket::Error::INTERNAL_ERROR
+			expect(reason).to be == "x" * 123
+		end
+		
 		it "is not closed when close_write succeeds" do
 			connection.close_write
 			

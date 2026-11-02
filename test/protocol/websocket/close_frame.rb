@@ -30,6 +30,25 @@ describe Protocol::WebSocket::CloseFrame do
 			
 			expect(frame.payload).to be == "\x03\xE8Hello World".b
 		end
+		
+		it "truncates the reason to fit in a control frame" do
+			frame.pack(1000, "x" * 200)
+			
+			expect(frame.payload.bytesize).to be == 125
+			
+			code, reason = frame.unpack
+			expect(code).to be == 1000
+			expect(reason).to be == "x" * 123
+		end
+		
+		it "doesn't split a multibyte character when truncating the reason" do
+			frame.pack(1000, ("x" * 122) + "é")
+			
+			expect(frame.payload.bytesize).to be == 124
+			
+			code, reason = frame.unpack
+			expect(reason).to be == "x" * 122
+		end
 	end
 	
 	with "#unpack" do
