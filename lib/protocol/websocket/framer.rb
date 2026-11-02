@@ -26,7 +26,7 @@ module Protocol
 		}.freeze
 		
 		# The maximum allowed frame size in bytes.
-		MAXIMUM_ALLOWED_FRAME_SIZE = 2**63
+		MAXIMUM_ALLOWED_FRAME_SIZE = 2**63 - 1
 		
 		# Wraps an underlying {Async::IO::Stream} for reading and writing binary data into structured frames.
 		class Framer
