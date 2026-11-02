@@ -41,6 +41,66 @@ describe Protocol::WebSocket::Framer do
 			end.to raise_exception(EOFError, message: be =~ /Could not read frame header/)
 		end
 		
+		it "fails if it can't read the 16-bit length" do
+			# FIN=1, opcode=0x2 (binary), MASK=0, length=126, only 1 byte of extended length
+			stream.string = "\x82\x7E\x00"
+			stream.rewind
+			
+			expect do
+				framer.read_frame
+			end.to raise_exception(EOFError, message: be =~ /Could not read length!/)
+		end
+		
+		it "fails if it can't read the 64-bit length" do
+			# FIN=1, opcode=0x2 (binary), MASK=0, length=127, only 2 bytes of extended length
+			stream.string = "\x82\x7F\x00\x00"
+			stream.rewind
+			
+			expect do
+				framer.read_frame
+			end.to raise_exception(EOFError, message: be =~ /Could not read length!/)
+		end
+		
+		it "fails if it can't read the 16-bit length and mask" do
+			# FIN=1, opcode=0x2 (binary), MASK=1, length=126, extended length=5, only 2 bytes of mask
+			stream.string = "\x82\xFE\x00\x05ab"
+			stream.rewind
+			
+			expect do
+				framer.read_frame
+			end.to raise_exception(EOFError, message: be =~ /Could not read length and mask!/)
+		end
+		
+		it "fails if it can't read the 64-bit length and mask" do
+			# FIN=1, opcode=0x2 (binary), MASK=1, length=127, extended length=5, only 2 bytes of mask
+			stream.string = "\x82\xFF\x00\x00\x00\x00\x00\x00\x00\x05ab"
+			stream.rewind
+			
+			expect do
+				framer.read_frame
+			end.to raise_exception(EOFError, message: be =~ /Could not read length and mask!/)
+		end
+		
+		it "fails if it can't read the mask" do
+			# FIN=1, opcode=0x2 (binary), MASK=1, length=5, only 2 bytes of mask
+			stream.string = "\x82\x85ab"
+			stream.rewind
+			
+			expect do
+				framer.read_frame
+			end.to raise_exception(EOFError, message: be =~ /Could not read mask!/)
+		end
+		
+		it "fails if it can't read the mask of an empty frame" do
+			# FIN=1, opcode=0x2 (binary), MASK=1, length=0, only 2 bytes of mask
+			stream.string = "\x82\x80ab"
+			stream.rewind
+			
+			expect do
+				framer.read_frame
+			end.to raise_exception(EOFError, message: be =~ /Could not read mask!/)
+		end
+		
 		it "rejects reserved non-control opcodes" do
 			stream.string = "\x83\x00"
 			stream.rewind

@@ -83,24 +83,48 @@ module Protocol
 				
 				if length == 126
 					if mask
-						buffer = @stream.read(6) or raise EOFError, "Could not read length and mask!"
+						buffer = @stream.read(6)
+						
+						unless buffer and buffer.bytesize == 6
+							raise EOFError, "Could not read length and mask!"
+						end
+						
 						length = buffer.unpack1("n")
 						mask = buffer.byteslice(2, 4)
 					else
-						buffer = @stream.read(2) or raise EOFError, "Could not read length!"
+						buffer = @stream.read(2)
+						
+						unless buffer and buffer.bytesize == 2
+							raise EOFError, "Could not read length!"
+						end
+						
 						length = buffer.unpack1("n")
 					end
 				elsif length == 127
 					if mask
-						buffer = @stream.read(12) or raise EOFError, "Could not read length and mask!"
+						buffer = @stream.read(12)
+						
+						unless buffer and buffer.bytesize == 12
+							raise EOFError, "Could not read length and mask!"
+						end
+						
 						length = buffer.unpack1("Q>")
 						mask = buffer.byteslice(8, 4)
 					else
-						buffer = @stream.read(8) or raise EOFError, "Could not read length!"
+						buffer = @stream.read(8)
+						
+						unless buffer and buffer.bytesize == 8
+							raise EOFError, "Could not read length!"
+						end
+						
 						length = buffer.unpack1("Q>")
 					end
 				elsif mask
-					mask = @stream.read(4) or raise EOFError, "Could not read mask!"
+					mask = @stream.read(4)
+					
+					unless mask and mask.bytesize == 4
+						raise EOFError, "Could not read mask!"
+					end
 				end
 				
 				if length > maximum_frame_size
