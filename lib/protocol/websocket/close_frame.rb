@@ -12,6 +12,7 @@ module Protocol
 		class CloseFrame < Frame
 			OPCODE = 0x8
 			FORMAT = "na*"
+			MAXIMUM_REASON_LENGTH = 123
 			
 			# Unpack the frame data into a close code and reason.
 			# @returns [Tuple(Integer, String)] The close code and reason.
@@ -45,12 +46,17 @@ module Protocol
 			
 			# Pack a close code and reason into the frame data.
 			# If code is missing, reason is ignored.
+			# The reason is truncated to 123 bytes.
 			# @parameter code [Integer | Nil] The close code.
 			# @parameter reason [String | Nil] The close reason.
 			def pack(code = nil, reason = nil)
 				if code
 					if reason and reason.encoding != Encoding::UTF_8
 						reason = reason.encode(Encoding::UTF_8)
+					end
+					
+					if reason and reason.bytesize > MAXIMUM_REASON_LENGTH
+						reason = reason.byteslice(0, MAXIMUM_REASON_LENGTH).scrub("")
 					end
 					
 					super([code, reason].pack(FORMAT))
